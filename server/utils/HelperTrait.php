@@ -13,4 +13,10 @@ trait HelperTrait {
 		]);
 		exit;
 	}
+
+	public function getIdFromUrl(): ?int {
+		$url = $_SERVER['REQUEST_URI'];
+		$urlParts = explode('/', $url);
+		return (int)end($urlParts);
+	}
 }

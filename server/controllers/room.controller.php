@@ -1,0 +1,81 @@
+<?php
+
+use JetBrains\PhpStorm\NoReturn;
+
+require_once '../models/Room.php';
+require_once '../utils/HelperTrait.php';
+require_once '../middlewares/validator.middleware.php';
+
+class RoomController {
+	use HelperTrait;
+
+	#[NoReturn] public function __construct() {
+		$id = $this->getIdFromUrl();
+		$method = $_SERVER['REQUEST_METHOD'];
+		switch ($method) {
+			case 'GET':
+				if ($id) $this->getOneRoom($id);
+				else $this->getRooms();
+			case 'POST':
+				$this->createRoom();
+			case 'PATCH':
+				$this->updateRoom($id);
+			case 'DELETE':
+				$this->deleteRoom($id);
+			default:
+				$this->apiResponse(null, 'Method Not Allowed', 405);
+		}
+	}
+
+	#[NoReturn] private function getRooms(): void {
+		$rooms = Room::all();
+		$this->apiResponse($rooms, 'ok', 200);
+	}
+
+	#[NoReturn] private function getOneRoom($id): void {
+		$room = Room::find($id);
+		if ($room) {
+			$this->apiResponse($room, 'ok', 200);
+		} else {
+			$this->apiResponse((object)[], 'Room not found', 404);
+		}
+	}
+
+	#[NoReturn] private function createRoom(): void {
+		$jsonData = json_decode(file_get_contents("php://input"), true);
+		$validator = Validator::make($jsonData, [
+			'name' => 'required|string|unique:rooms',
+			'description' => 'nullable|string',
+		]);
+		if ($validator->fails()) {
+			$this->apiResponse((object)[], $validator->firstError(), 404);
+		}
+
+		$room = Room::create([
+			'name' => $jsonData['name'],
+			'description' => $jsonData['description'],
+		]);
+		$this->apiResponse($room, 'ok', 201);
+	}
+
+	#[NoReturn] private function updateRoom($id): void {
+		$jsonData = json_decode(file_get_contents("php://input"), true);
+		$validator = Validator::make($jsonData, [
+			'name' => 'nullable|string|unique:rooms,name,' . $id,
+			'description' => 'nullable|string',
+		]);
+		if ($validator->fails()) {
+			$this->apiResponse((object)[], $validator->firstError(), 404);
+		}
+
+		$room = Room::update($id, $jsonData);
+		$this->apiResponse($room, 'ok', 200);
+	}
+
+	#[NoReturn] private function deleteRoom($id): void {
+		$room = Room::delete($id);
+		$this->apiResponse($room, 'ok', 200);
+	}
+}
+
+new RoomController();
