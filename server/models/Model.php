@@ -27,7 +27,7 @@ abstract class Model {
 		return $stmt->fetch(PDO::FETCH_ASSOC);
 	}
 
-	public static function create($data): bool {
+	public static function create($data): false|array {
 		self::init();
 		$columns = implode(", ", array_keys($data));
 		$placeholders = ":" . implode(", :", array_keys($data));
@@ -35,10 +35,12 @@ abstract class Model {
 		foreach ($data as $key => $val) {
 			$stmt->bindValue(":$key", $val);
 		}
-		return $stmt->execute();
+		$stmt->execute();
+		$lastId = self::$con->lastInsertId();
+		return self::find($lastId);
 	}
 
-	public static function update($id, $data): bool {
+	public static function update($id, $data): false|array {
 		self::init();
 		$setPart = implode(", ", array_map(function ($col) {
 			return "$col = :$col";
@@ -49,7 +51,8 @@ abstract class Model {
 			$stmt->bindValue(":$key", $val);
 		}
 		$stmt->bindValue(":id", $id);
-		return $stmt->execute();
+		$stmt->execute();
+		return self::find($id);
 	}
 
 	public static function delete($id): bool {

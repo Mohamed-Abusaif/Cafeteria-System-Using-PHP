@@ -1,0 +1,18 @@
+meta {
+  name: Update Room
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{CAFETERIA_URL}}/controllers/room.controller.php/2
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+  //     "name": "Room D"
+    "description": null
+  }
+}
