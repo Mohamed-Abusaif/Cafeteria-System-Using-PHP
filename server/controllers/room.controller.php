@@ -3,6 +3,8 @@
 use JetBrains\PhpStorm\NoReturn;
 
 require_once '../models/Room.php';
+require_once '../models/Order.php';
+require_once '../models/User.php';
 require_once '../utils/HelperTrait.php';
 require_once '../middlewares/validator.middleware.php';
 
@@ -73,6 +75,11 @@ class RoomController {
 	}
 
 	#[NoReturn] private function deleteRoom($id): void {
+		$relatedOrders = Order::where('room_id', '=', $id)->count();
+		$relatedUsers = User::where('room_id', '=', $id)->count();
+		if ($relatedOrders > 0 || $relatedUsers > 0) {
+			$this->apiResponse((object)[], 'Room cannot be deleted because it has related orders or users', 400);
+		}
 		$room = Room::delete($id);
 		$this->apiResponse($room, 'ok', 200);
 	}
