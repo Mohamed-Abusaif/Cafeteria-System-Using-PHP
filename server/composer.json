@@ -3,6 +3,8 @@
         "serve": "php -S 127.0.0.1:8000"
     },
     "require": {
-        "firebase/php-jwt": "^6.11"
+        "firebase/php-jwt": "^6.11",
+        "cloudinary/cloudinary_php": "^3.1"
+
     }
 }
