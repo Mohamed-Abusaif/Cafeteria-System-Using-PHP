@@ -1,0 +1,18 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{CAFETERIA_URL}}/controllers/auth/login.controllers.php
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "bob@example.com",
+    "password": "123456789"
+  }
+}
