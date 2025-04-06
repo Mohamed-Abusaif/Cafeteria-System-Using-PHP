@@ -5,6 +5,8 @@ use JetBrains\PhpStorm\NoReturn;
 require_once '../../utils/HelperTrait.php';
 require_once '../../models/User.php';
 require_once '../../utils/JwtHelper.php';
+require_once '../../middlewares/validator.middleware.php';
+
 
 class Login {
   use HelperTrait;
@@ -14,6 +16,13 @@ class Login {
     switch ($method) {
       case 'POST':
         $jsonData = json_decode(file_get_contents("php://input"), true);
+        $validator = Validator::make($jsonData, [
+          'email' => 'required|email',
+          'password' => 'required|string|min:8',
+        ]);
+        if ($validator->fails()) {
+          $this->apiResponse((object)[], $validator->firstError(), 404);
+        }
 
         $user = User::where("email", "=", $jsonData["email"])->first();
         if (!$user) {
@@ -25,20 +34,11 @@ class Login {
         if (!password_verify($jsonData["password"], $user["password"])) {
           $this->apiResponse((object)[], 'email or password not valid', 404);
         }
-      $token=  JwtHelper::generateToken($user);
+        $token = JwtHelper::generateToken($user);
         $this->apiResponse($token, "OK", 200);
-
-
-//        case 'GET':
-//          $hashed_password = password_hash("123456", PASSWORD_DEFAULT);
-//          $this->apiResponse($hashed_password, 'account has deleted', 404);
-
-
       default:
         $this->apiResponse((object)[], 'Method Not Allowed', 405);
-
     }
-
   }
 }
 

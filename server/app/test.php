@@ -78,7 +78,7 @@
 
 <div class="form-container">
   <h2>تسجيل مستخدم جديد</h2>
-  <form action="../controllers/user.controllers.php" method="POST" enctype="multipart/form-data">
+  <form action="../controllers/user.controller.php" method="POST" enctype="multipart/form-data">
     <!-- حقل الاسم -->
     <div class="form-group">
       <label for="name">الاسم</label>
