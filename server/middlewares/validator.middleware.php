@@ -159,6 +159,8 @@ class Validator {
 			"users" => User::class,
 			"rooms" => Room::class,
 			"orders" => Order::class,
+			"products" => Product::class,
+			"carts" => Cart::class,
 			default => null,
 		};
 
@@ -174,11 +176,15 @@ class Validator {
 		require_once '../models/User.php';
 		require_once '../models/Room.php';
 		require_once '../models/Order.php';
+		require_once '../models/Cart.php';
+		require_once '../models/Product.php';
 
 		$tableModel = match ($table) {
 			"users" => User::class,
 			"rooms" => Room::class,
 			"orders" => Order::class,
+			"products" => Product::class,
+			"carts" => Cart::class,
 			default => null,
 		};
 
