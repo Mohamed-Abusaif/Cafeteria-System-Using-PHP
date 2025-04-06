@@ -3,9 +3,10 @@
 class Validator {
 	private array $data;
 	private array $rules;
+	protected array $files;
 	private array $errors = [];
 
-	public static function make($data, array $rules): self {
+	public static function make($data, array $rules, $files = null): self {
 		$validator = new self();
 		if ($data === null) {
 			$validator->addError('input', 'Invalid or empty JSON input');
@@ -14,6 +15,7 @@ class Validator {
 
 		$validator->data = $data;
 		$validator->rules = $rules;
+		$validator->files = $files ?? $_FILES;
 		$validator->validate();
 		return $validator;
 	}
@@ -48,7 +50,8 @@ class Validator {
 	private function applyValidationRule(string $field, $value, string $ruleName, $param): void {
 		switch ($ruleName) {
 			case 'required':
-				if ($value === null || $value === '') {
+				$fileUploaded = isset($_FILES[$field]) && $_FILES[$field]['error'] === UPLOAD_ERR_OK;
+				if (($value === null || $value === '') && !$fileUploaded) {
 					$this->addError($field, "The $field field is required.");
 				}
 				break;
@@ -89,6 +92,45 @@ class Validator {
 				}
 				break;
 
+			case 'file':
+				if (!isset($_FILES[$field]) || $_FILES[$field]['error'] !== UPLOAD_ERR_OK) {
+					$this->addError($field, "The $field must be a valid uploaded file.");
+				}
+				break;
+
+			case 'mimes':
+				if (isset($_FILES[$field]) && $_FILES[$field]['error'] === UPLOAD_ERR_OK) {
+					$allowedMimes = explode(',', $param);
+					$fileMime = mime_content_type($_FILES[$field]['tmp_name']);
+					$ext = pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
+
+					$mimeMapping = [
+						'jpeg' => 'image/jpeg',
+						'jpg'  => 'image/jpeg',
+						'png'  => 'image/png',
+						'gif'  => 'image/gif',
+					];
+
+					if (!in_array($ext, $allowedMimes) || !in_array($fileMime, $mimeMapping)) {
+						$this->addError($field, "The $field must be a file of type: " . implode(', ', $allowedMimes) . ".");
+					}
+				}
+				break;
+
+			case 'max':
+				if (isset($_FILES[$field]) && $_FILES[$field]['error'] === UPLOAD_ERR_OK) {
+					$maxSizeKB = (int)$param;
+					$fileSizeKB = $_FILES[$field]['size'] / 1024;
+					if ($fileSizeKB > $maxSizeKB) {
+						$this->addError($field, "The $field must not be greater than $maxSizeKB kilobytes.");
+					}
+				} elseif (is_string($value)) {
+					if (strlen($value) > (int)$param) {
+						$this->addError($field, "The $field must not be greater than $param characters.");
+					}
+				}
+				break;
+
 			case 'unique':
 				if ($value !== null) {
 					$parts = explode(',', $param);
@@ -101,6 +143,14 @@ class Validator {
 					}
 				}
 				break;
+
+			case 'exists':
+				if ($value !== null) {
+					if (!$this->recordExists($param, $value)) {
+						$this->addError($field, "The selected $field is invalid.");
+					}
+				}
+				break;
 		}
 	}
 
@@ -108,6 +158,7 @@ class Validator {
 		$tableModel = match ($table) {
 			"users" => User::class,
 			"rooms" => Room::class,
+			"orders" => Order::class,
 			default => null,
 		};
 
@@ -117,6 +168,21 @@ class Validator {
 			$count = $tableModel::where($field, "=", $value)->count();
 		}
 		return $count > 0;
+	}
+
+	private function recordExists(string $table, $value): bool {
+		require_once '../models/User.php';
+		require_once '../models/Room.php';
+		require_once '../models/Order.php';
+
+		$tableModel = match ($table) {
+			"users" => User::class,
+			"rooms" => Room::class,
+			"orders" => Order::class,
+			default => null,
+		};
+
+		return (bool)$tableModel::find($value);
 	}
 
 	private function getValue(string $field, array $data) {
@@ -151,11 +217,3 @@ class Validator {
 		return $this->errors[$firstField][0] ?? null;
 	}
 }
-
-//
-//	private function roleExists($roleId): bool {
-//		$pdo = new PDO("mysql:host=localhost;dbname=your_db", "root", "");
-//		$stmt = $pdo->prepare("SELECT id FROM roles WHERE id = ?");
-//		$stmt->execute([$roleId]);
-//		return $stmt->fetch() !== false;
-//	}

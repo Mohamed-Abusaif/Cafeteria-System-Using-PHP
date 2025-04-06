@@ -1,0 +1,20 @@
+meta {
+  name: Create User
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{CAFETERIA_URL}}/controllers/user.controllers.php
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  name: Ahmed
+  image: @file(D:\WhatsApp Image 2024-12-13 at 7.02.11 PM.jpeg)
+  email: totarf@gmail.com
+  password: 12345678
+  roomNo: 5
+  confirm_password: 12345678
+}
