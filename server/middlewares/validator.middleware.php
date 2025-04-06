@@ -61,7 +61,7 @@ class Validator {
 					$this->addError($field, "The $field must be a string.");
 				}
 				break;
-
+				
 			case 'email':
 				if ($value !== null && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
 					$this->addError($field, "The $field must be a valid email address.");
@@ -161,6 +161,7 @@ class Validator {
 			"orders" => Order::class,
 			"products" => Product::class,
 			"carts" => Cart::class,
+			"categories" => Category::class,
 			default => null,
 		};
 
@@ -178,6 +179,7 @@ class Validator {
 		require_once '../models/Order.php';
 		require_once '../models/Cart.php';
 		require_once '../models/Product.php';
+		require_once '../models/Category.php';
 
 		$tableModel = match ($table) {
 			"users" => User::class,
@@ -185,6 +187,7 @@ class Validator {
 			"orders" => Order::class,
 			"products" => Product::class,
 			"carts" => Cart::class,
+			"categories" => Category::class,
 			default => null,
 		};
 
