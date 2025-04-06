@@ -14,12 +14,12 @@ import AppHeader from '@/components/AppHeader.vue'
 
 <style scoped>
 .app-wrapper {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
+  width: 100%;
 }
 
 .main-content {
-  margin-top: 56px;
+  margin-top: 1.5rem;
+  width: 100%;
 }
 </style>
