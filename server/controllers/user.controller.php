@@ -26,11 +26,7 @@ class UserController {
       case 'POST':
         $this->createUser();
       case 'PATCH':
-        if (isset($_FILES['image'])) {
-          $this->updateImage($id);
-        } else {
-          $this->updateUser($id);
-        }
+        $this->updateUser($id);
       case 'DELETE':
         $this->deleteUser($id);
       default:
@@ -105,51 +101,6 @@ class UserController {
     $this->apiResponse($user, 'ok', 200);
   }
 
-
-  #[NoReturn] private function updateImage($id): void {
-    $user = User::find($id);
-    if (!$user) {
-      $this->apiResponse((object)[], 'user not found', 404);
-    }
-    //get new photo
-    $validator = Validator::make($_FILES, [
-      'image' => 'required|file|mimes:jpeg,png,jpg|max:2048',
-    ]);
-
-    if ($validator->fails()) {
-      $this->apiResponse((object)[], $validator->firstError(), 400);
-    }
-    // TO GET  OLD IMG DATA
-    $previousPublicId = $user->public_id;
-    $imageUrl = null;
-    $publicId = null;
-
-    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-      $file = $_FILES['image']['tmp_name'];
-      try {
-        $upload = new UploadApi();
-        $response = $upload->upload($file, ['folder' => 'users']);
-        $imageUrl = $response['secure_url'];
-        $publicId = $response['public_id'];
-        $user->image = $imageUrl;
-        $user->public_id = $publicId;
-        $user->save();
-      } catch (\Exception $e) {
-        $this->apiResponse(['error' => 'Image upload failed: ' . $e->getMessage()], 'error', 400);
-      }
-
-    }
-    //to delete photo from cloudinary
-    if ($previousPublicId && $publicId && $previousPublicId !== $publicId) {
-      try {
-        $cloudinary = new Cloudinary();
-        $cloudinary->api->delete_resources($previousPublicId);
-      } catch (\Cloudinary\Api\Exception $e) {
-        $this->apiResponse(['error' => 'Failed to delete previous image: ' . $e->getMessage()], 'error', 400);
-      }
-    }
-  }
-
   #[NoReturn] private function deleteUser($id): void {
     $user = User::find($id);
     if (!$user) {
@@ -172,6 +123,7 @@ class UserController {
     }
     $this->apiResponse($user, 'ok', 200);
   }
+
 }
 
 new UserController();
