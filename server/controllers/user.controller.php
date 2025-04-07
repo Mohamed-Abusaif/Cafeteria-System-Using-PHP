@@ -62,15 +62,20 @@ class UserController {
       $this->apiResponse(['error' => 'Password and confirm password do not match'], 'error', 400);
     }
 
+    if ($_POST['gender'] === 'Male') {
+      $imageUrl='https://static.vecteezy.com/system/resources/previews/046/409/821/non_2x/avatar-profile-icon-in-flat-style-male-user-profile-illustration-on-isolated-background-man-profile-sign-business-concept-vector.jpg';
+    }
+    if ($_POST['gender'] === 'Female') {
+      $imageUrl='https://i.pinimg.com/736x/4c/30/b9/4c30b9de7fe46ffb20d4ee4229509541.jpg';
+    }
     $hashedPassword = password_hash($_POST['password'], PASSWORD_BCRYPT);
     $user = User::create([
       'name' => $_POST['name'],
       'email' => $_POST['email'],
       'password' => $hashedPassword,
       'room_id' => $_POST['room_id'] ?? null,
-//      'image' => $imageUrl ?? null,
+      'image' => $imageUrl ?? null,
       'role' => "user",
-      'gender' => $_POST['gender']
     ]);
     $this->apiResponse($user, 'ok', 201);
   }
