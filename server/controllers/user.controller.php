@@ -1,14 +1,17 @@
 <?php
 
+use Cloudinary\Cloudinary;
 use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
 use JetBrains\PhpStorm\NoReturn;
 
-require_once '../models/User.php';
+//require 'auth/login.controller.php';
+require '../models/User.php';
 require_once '../utils/HelperTrait.php';
 require '../vendor/autoload.php';
 require_once '../middlewares/validator.middleware.php';
 require_once __DIR__ . '/../vendor/autoload.php';
+
 
 $env = parse_ini_file(__DIR__ . '/../.env');
 $cloudinary_url = 'cloudinary://' . $env['API_KEY'] . ':' . $env['API_SECRET'] . '@' . $env['CLOUD_NAME'] . '?secure=true';
@@ -18,17 +21,28 @@ class UserController {
   use HelperTrait;
 
   #[NoReturn] public function __construct() {
-    $id = $this->getIdFromUrl();
+//    $id = $this->getIdFromUrl();
+
     $method = $_SERVER['REQUEST_METHOD'];
+    error_log("METHOD: $method");
+
+//    $userData=Login::me();
+//    $id=$userData->id;
     switch ($method) {
       case 'GET':
         $this->getUsers();
+        break;
       case 'POST':
         $this->createUser();
+        break;
       case 'PATCH':
+        $id=19;
         $this->updateUser($id);
+        break;
       case 'DELETE':
+//        $id=19;
         $this->deleteUser($id);
+        break;
       default:
         $this->apiResponse(null, 'Method Not Allowed', 405);
     }
@@ -77,16 +91,17 @@ class UserController {
   }
 
   #[NoReturn] private function updateUser($id): void {
-    $user = User::find($id);
+    $user =User::find($id);
     if (!$user) {
       $this->apiResponse((object)[], 'user not found', 404);
     }
     $jsonData = json_decode(file_get_contents("php://input"), true);
-    if ($user->role === "Admin") {
-      $allowedFields = ['room_id', 'role'];
-    } else if ($user->role === "User") {
-      $allowedFields = ['name'];
-    }
+//    if ($user->role === "Admin") {
+//      $allowedFields = ['room_id', 'role'];
+//    } else if ($user->role === "User") {
+//      $allowedFields = ['name'];
+//    }
+    $allowedFields = ['name','room_id', 'role'];
     $jsonData = array_intersect_key($jsonData, array_flip($allowedFields));
     $validator = Validator::make($jsonData, [
       'name' => 'nullable|string',
@@ -96,12 +111,18 @@ class UserController {
     if ($validator->fails()) {
       $this->apiResponse((object)[], $validator->firstError(), 404);
     }
+    if ($jsonData){
+      $user= User::update($id,$jsonData);
+      $this->apiResponse($user, 'ok', 200);
+    }
 
-    $user->update($jsonData);
-    $this->apiResponse($user, 'ok', 200);
+    $this->apiResponse((object)[], 'You are not allowed to update this', 402);
+
+
   }
 
   #[NoReturn] private function deleteUser($id): void {
+    global $env;
     $user = User::find($id);
     if (!$user) {
       $this->apiResponse((object)[], 'user not found', 404);
@@ -112,16 +133,21 @@ class UserController {
       'deleted_at' => date('Y-m-d H:i:s'),
     ]);
     //delete the photo from cloudinary
-    $publicId = $user->public_id;
+    $publicId = $user['public_id'];
     if ($publicId) {
       try {
-        $cloudinary = new Cloudinary();
-        $cloudinary->api->delete_resources($publicId);
+        $config = Configuration::instance();
+        $config->cloud->cloudName = $env['CLOUD_NAME'];
+        $config->cloud->apiKey =  $env['API_KEY'];
+        $config->cloud->apiSecret = $env['API_SECRET'];
+        $config->url->secure = true;
+        $cloudinary = new Cloudinary($config);
+        $cloudinary->uploadApi()->destroy($publicId, $options = []);
       } catch (\Cloudinary\Api\Exception $e) {
         $this->apiResponse(['error' => 'Failed to delete previous image: ' . $e->getMessage()], 'error', 400);
       }
     }
-    $this->apiResponse($user, 'ok', 200);
+    $this->apiResponse($user, 'OK', 200);
   }
 
 }

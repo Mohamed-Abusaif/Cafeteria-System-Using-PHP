@@ -1,13 +1,14 @@
 <?php
 
 use JetBrains\PhpStorm\NoReturn;
-
-require_once '../../utils/HelperTrait.php';
-require_once '../../models/User.php';
-require_once '../../utils/JwtHelper.php';
-require_once '../../middlewares/validator.middleware.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+
+require(__DIR__ . '/../../models/User.php');
+require(__DIR__.'/../../utils/HelperTrait.php');
+require(__DIR__.'/../../middlewares/validator.middleware.php');
+require(__DIR__ . '/../../utils/JwtHelper.php');
+
 
 
 class Login {
@@ -51,7 +52,7 @@ class Login {
     $this->apiResponse((object)[], "OK", 200);
   }
 
-  private function me() {
+  public function me() {
     $env = parse_ini_file(__DIR__ . '/../../.env');
     $secretKey = $env['JWT_SECRET'];
 
