@@ -5,7 +5,14 @@ meta {
 }
 
 get {
-  url: {{CAFETERIA_URL}}/controllers/user.controllers.php
+  url: {{CAFETERIA_URL}}/controllers/user.controller.php
   body: none
   auth: none
+}
+
+params:query {
+  ~name: na
+  ~role: user
+  ~page: 2
+  ~limit: 5
 }

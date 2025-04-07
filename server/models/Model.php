@@ -88,10 +88,39 @@ abstract class Model {
 	}
 
 	public static function paginate($page, $limit = 10): false|array {
+		self::init();
+		$tempConditions = self::$conditions;
+		$tempParams = self::$params;
+		$tempSorting = self::$sorting;
+
+		$countQuery = "SELECT COUNT(*) as total FROM " . static::$table;
+		if (!empty(self::$conditions)) {
+			$countQuery .= " WHERE " . implode(" AND ", self::$conditions);
+		}
+
+		$countStmt = self::$con->prepare($countQuery);
+		foreach (self::$params as $key => $val) {
+			$countStmt->bindValue(":$key", $val);
+		}
+		$countStmt->execute();
+		$total = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+		$totalPages = ceil($total / $limit);
+
+		self::$conditions = $tempConditions;
+		self::$params = $tempParams;
+		self::$sorting = $tempSorting;
+
 		$offset = ($page - 1) * $limit;
 		self::$pagination = " LIMIT $limit OFFSET $offset";
 		$stmt = self::prepare();
-		return $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		return [
+			'total' => (int)$total,
+			'total_pages' => (int)$totalPages,
+			'current_page' => (int)$page,
+			'per_page' => (int)$limit,
+			'data' => $data,
+		];
 	}
 
 	private static function prepare(): PDOStatement|false {
