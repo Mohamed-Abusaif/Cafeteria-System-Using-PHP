@@ -172,6 +172,7 @@ class UserController {
     }
     $this->apiResponse($user, 'ok', 200);
   }
+
 }
 
 new UserController();
