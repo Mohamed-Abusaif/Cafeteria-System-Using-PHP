@@ -5,16 +5,26 @@ meta {
 }
 
 post {
-  url: {{CAFETERIA_URL}}/controllers/user.controllers.php
-  body: multipartForm
+  url: {{CAFETERIA_URL}}/controllers/user.controller.php
+  body: json
   auth: inherit
+}
+
+body:json {
+  {
+    "name": "Ahmed",
+    "email": "ahmed@gmail.com",
+    "password": "12345678",
+    "confirm_password": "12345678",
+    "gender": "Male"
+  }
 }
 
 body:multipart-form {
   name: Ahmed
-  image: @file(D:\WhatsApp Image 2024-12-13 at 7.02.11 PM.jpeg)
-  email: totarf@gmail.com
+  email: totarfrf@gmail.com
   password: 12345678
-  roomNo: 5
+  roomNo: 3
   confirm_password: 12345678
+  gender: Female
 }

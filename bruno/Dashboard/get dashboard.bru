@@ -1,0 +1,11 @@
+meta {
+  name: get dashboard
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{CAFETERIA_URL}}/controllers/dashboard.controller.php
+  body: none
+  auth: inherit
+}
