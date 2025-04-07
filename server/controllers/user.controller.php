@@ -29,10 +29,18 @@ class UserController {
   }
 
   #[NoReturn] private function getUsers(): void {
-//		$users = User::all();
-//		$users = User::sort('age', 'asc')->sort('rate', 'desc')->get();
-    $users = User::paginate(1, 2);
-    $this->apiResponse($users, 'ok', 201);
+	  $page = $_GET['page'] ?? 1;
+		$limit = $_GET['limit'] ?? 10;
+	  $users = User::where('deleted_at', 'is', null);
+	  if(isset($_GET['name'])){
+		  $users = $users->where('name', 'like', '%'.$_GET['name'].'%');
+	  }
+	  if(isset($_GET['role'])){
+		  $users = $users->where('role', '=', $_GET['role']);
+	  }
+
+		$users = $users->sort('id', 'desc')->paginate($page, $limit);
+	  $this->apiResponse($users, 'ok', 200);
   }
 
   #[NoReturn] private function createUser(): void {
