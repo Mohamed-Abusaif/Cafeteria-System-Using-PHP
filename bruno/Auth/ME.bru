@@ -1,0 +1,36 @@
+meta {
+  name: ME
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{CAFETERIA_URL}}/controllers/auth/login.controller.php
+  body: none
+  auth: none
+}
+
+body:json {
+    "id": 2,
+      "name": "Bob Smith",
+      "email": "bob@example.com",
+      "role": "sdcd",
+      "image": "bobob.jpg",
+      "public_id": null,
+      "room_id": 2,
+      "created_at": "2025-03-30 15:07:19",
+      "updated_at": "2025-04-07 13:29:35",
+      "deleted_at": null
+  
+      "id": 2,
+      "name": "Bob Smith",
+      "email": "bob@example.com",
+      "password": "$2y$10$jeviePAJcAUPKoXm3dzLLOUkHN4Dlpn7sA7yKthGJ86Rys/4wimH6",
+      "role": "sdcd",
+      "image": "bobob.jpg",
+      "public_id": null,
+      "room_id": 2,
+      "created_at": "2025-03-30 15:07:19",
+      "updated_at": "2025-04-07 13:29:35",
+      "deleted_at": null
+}

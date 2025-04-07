@@ -92,6 +92,13 @@ class Validator {
 				}
 				break;
 
+			case 'in':
+				$allowedValues = explode(',', $param);
+				if (!in_array($value, $allowedValues)) {
+					$this->addError($field, "The $field must be one of the following: " . implode(', ', $allowedValues) . '.');
+				}
+				break;
+
 			case 'file':
 				if (!isset($_FILES[$field]) || $_FILES[$field]['error'] !== UPLOAD_ERR_OK) {
 					$this->addError($field, "The $field must be a valid uploaded file.");

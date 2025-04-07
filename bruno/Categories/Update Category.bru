@@ -1,0 +1,17 @@
+meta {
+  name: Update Category
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{CAFETERIA_URL}}/controllers/category.controller.php/10
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "false"
+  }
+}

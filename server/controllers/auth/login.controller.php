@@ -1,5 +1,7 @@
 <?php
 
+use Firebase\JWT\ExpiredException;
+use Firebase\JWT\SignatureInvalidException;
 use JetBrains\PhpStorm\NoReturn;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -9,8 +11,6 @@ require(__DIR__.'/../../utils/HelperTrait.php');
 require(__DIR__.'/../../middlewares/validator.middleware.php');
 require(__DIR__ . '/../../utils/JwtHelper.php');
 
-
-
 class Login {
   use HelperTrait;
 
@@ -19,7 +19,6 @@ class Login {
     switch ($method) {
       case 'POST':
         $this->login();
-        break;
       case 'GET':
         $this->me();
         break;
@@ -28,7 +27,7 @@ class Login {
     }
   }
 
-  #[NoReturn] private function login() {
+  #[NoReturn] private function login(): void {
     $jsonData = json_decode(file_get_contents("php://input"), true);
     $validator = Validator::make($jsonData, [
       'email' => 'required|email',
@@ -48,11 +47,11 @@ class Login {
       $this->apiResponse((object)[], 'email or password not valid', 404);
     }
     $token = JwtHelper::generateToken($user);
-    setcookie("token", $token, time() + 3600, "/", "", true, true);
+    setcookie("token", $token, time() + 3600, "/", "", false, true);
     $this->apiResponse((object)[], "OK", 200);
   }
 
-  public function me() {
+  public function me(): void {
     $env = parse_ini_file(__DIR__ . '/../../.env');
     $secretKey = $env['JWT_SECRET'];
 
@@ -60,25 +59,18 @@ class Login {
       $this->apiResponse((object)[], 'Token not found in cookies', 401);
     }
     $token = $_COOKIE['token'];
+
     try {
       $decoded = JWT::decode($token, new Key($secretKey, 'HS256'));
-      $user = (array) $decoded;
-
+      $user = User::find($decoded->id);
       unset($user['password']);
-      $user = (object) $user;
-
       $this->apiResponse($user, 'OK', 200);
-
-
-    } catch (\Firebase\JWT\ExpiredException $e) {
-      $this->apiResponse($user, 'Token expired: ', 401);
-
-    } catch (\Firebase\JWT\SignatureInvalidException $e) {
-      $this->apiResponse($user, 'Invalid signature: ' , 401);
-
+    } catch (ExpiredException $e) {
+      $this->apiResponse((object)[], 'Token expired: ' . $e->getMessage(), 401);
+    } catch (SignatureInvalidException $e) {
+      $this->apiResponse((object)[], 'Invalid signature: ' . $e->getMessage(), 401);
     } catch (Exception $e) {
-      $this->apiResponse($user, 'Invalid token: ' , 400);
-
+      $this->apiResponse((object)[], 'Invalid token: ' . $e->getMessage(), 400);
     }
   }
 }
