@@ -135,10 +135,12 @@ abstract class Model {
 		if (!empty(self::$pagination)) {
 			$query .= self::$pagination;
 		}
+        //print_r($query);
 		$stmt = self::$con->prepare($query);
 		foreach (self::$params as $key => $val) {
 			$stmt->bindValue(":$key", $val);
 		}
+        //print_r($stmt->queryString);
 		$stmt->execute();
 		self::$params = [];
 		self::$sorting = [];

@@ -40,16 +40,17 @@ class OrderController {
     }
 
     private function getOrders() {
-        Order::init();
-        $orders = [];
+        //Order::init();
 
         if (isset($_GET['start_date']) && isset($_GET['end_date'])) {
             $startDate = date('Y-m-d H:i:s', strtotime($_GET['start_date']));
             $endDate = date('Y-m-d H:i:s', strtotime($_GET['end_date']));
+            //echo $startDate;
 
             if ($startDate && $endDate) {
-                Order::where('created_at', '>=', $startDate);
                 Order::where('created_at', '<=', $endDate);
+                Order::where('created_at', '>=', $startDate);
+
             }
         }
 
@@ -58,7 +59,7 @@ class OrderController {
         }
 
         if (isset($_GET['status'])) {
-            $validStatuses = ['processing', 'out for delivery', 'done'];
+            $validStatuses = ['processing', 'delivered', 'done'];
             if (in_array($_GET['status'], $validStatuses)) {
                 Order::where('status', '=', $_GET['status']);
             }
@@ -87,9 +88,9 @@ class OrderController {
     }
 
     private function getOrderProducts($orderId) {
-        OrderProduct::init();
-        OrderProduct::where('order_id', '=', $orderId);
-        $orderProducts = OrderProduct::get();
+        //OrderProduct::init();
+        $orderProducts = OrderProduct::where('order_id', '=', $orderId)->get();
+        //$orderProducts = OrderProduct::get();
 
         $products = [];
         foreach ($orderProducts as $orderProduct) {
@@ -156,8 +157,8 @@ class OrderController {
             'status' => 'processing',
             'total_price' => $totalPrice,
             'notes' => $jsonData['notes'] ?? null,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            //'created_at' => date('Y-m-d H:i:s'),
+            //'updated_at' => date('Y-m-d H:i:s')
         ]);
 
         foreach ($productItems as $item) {
@@ -193,7 +194,7 @@ class OrderController {
         }
 
         $validator = Validator::make($jsonData, [
-            'status' => 'required|string|in:processing,out for delivery,done',
+            'status' => 'required|string|in:processing,delivered,done',
         ]);
 
         if ($validator->fails()) {
@@ -205,8 +206,8 @@ class OrderController {
 
         // Define allowed status transitions
         $allowedTransitions = [
-            'processing' => ['out for delivery'],
-            'out for delivery' => ['done'],
+            'processing' => ['delivered'],
+            'delivered' => ['done'],
             'done' => []
         ];
 
