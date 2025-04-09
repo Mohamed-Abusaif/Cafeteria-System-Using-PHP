@@ -1,0 +1,17 @@
+meta {
+  name: Update Order
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{CAFETERIA_URL}}/controllers/order.controller.php/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "status":"delivered"
+  }
+}

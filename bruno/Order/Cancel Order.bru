@@ -1,0 +1,11 @@
+meta {
+  name: Cancel Order
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{CAFETERIA_URL}}/controllers/order.controller.php/5
+  body: none
+  auth: inherit
+}
