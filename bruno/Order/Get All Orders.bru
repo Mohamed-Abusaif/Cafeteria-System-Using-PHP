@@ -1,0 +1,19 @@
+meta {
+  name: Get All Orders
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{CAFETERIA_URL}}/controllers/order.controller.php?start_date=2025-03-20 15:07:23&end_date=2026-03-30 15:07:23
+  body: none
+  auth: inherit
+}
+
+params:query {
+  start_date: 2025-03-20 15:07:23
+  end_date: 2026-03-30 15:07:23
+  ~user_id: 1
+  ~status: processing
+  ~status: delivered
+}

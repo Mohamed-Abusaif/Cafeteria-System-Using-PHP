@@ -1,0 +1,19 @@
+meta {
+  name: Create Order
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{CAFETERIA_URL}}/controllers/order.controller.php
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "user_id":1,
+    "room_id":1,
+    "notes":"dfghjk"
+  }
+}
