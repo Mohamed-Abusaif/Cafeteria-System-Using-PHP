@@ -38,9 +38,21 @@ const toggleDropdown = () => {
             </router-link>
           </li>
           <li>
+            <router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/dashboard">
+              <span>Dashboard</span>
+              <i class="bi bi-graph-up"></i>
+            </router-link>
+          </li>
+          <li>
+            <router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/dashboard">
+              <span>Cart</span>
+              <i class="bi bi-cart-dash"></i>
+            </router-link>
+          </li>
+          <li>
             <router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/">
               <span>Orders</span>
-              <i class="bi bi-cart"></i>
+              <i class="bi bi-ui-checks"></i>
             </router-link>
           </li>
           <li><hr class="dropdown-divider"></li>

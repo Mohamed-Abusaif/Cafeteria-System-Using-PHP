@@ -67,6 +67,20 @@ abstract class Model {
 		return new static;
 	}
 
+	public static function whereBetween(string $column, array $values): Model {
+		if (count($values) !== 2) {
+			throw new InvalidArgumentException("The whereBetween method expects an array with exactly two values.");
+		}
+
+		$paramStart = $column . '_start_' . count(self::$conditions);
+		$paramEnd = $column . '_end_' . count(self::$conditions);
+
+		self::$conditions[] = "$column BETWEEN :$paramStart AND :$paramEnd";
+		self::$params[$paramStart] = $values[0];
+		self::$params[$paramEnd] = $values[1];
+		return new static;
+	}
+
 	public static function sort($column, $order): Model {
 		self::$sorting[] = "$column $order";
 		return new static;
@@ -135,12 +149,12 @@ abstract class Model {
 		if (!empty(self::$pagination)) {
 			$query .= self::$pagination;
 		}
-        //print_r($query);
+
 		$stmt = self::$con->prepare($query);
 		foreach (self::$params as $key => $val) {
 			$stmt->bindValue(":$key", $val);
 		}
-        //print_r($stmt->queryString);
+
 		$stmt->execute();
 		self::$params = [];
 		self::$sorting = [];

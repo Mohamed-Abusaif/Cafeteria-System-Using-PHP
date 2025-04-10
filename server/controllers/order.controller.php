@@ -20,11 +20,8 @@ class OrderController {
 
     switch ($method) {
       case 'GET':
-        if ($id) {
-          $this->getOneOrder($id);
-        } else {
-          $this->getOrders();
-        }
+        if ($id) $this->getOneOrder($id);
+        else $this->getOrders();
       case 'POST':
         $this->createOrder();
       case 'PATCH':
@@ -44,8 +41,7 @@ class OrderController {
       $endDate = date('Y-m-d H:i:s', strtotime($_GET['end_date']));
 
       if ($startDate && $endDate) {
-        Order::where('created_at', '<=', $endDate);
-        Order::where('created_at', '>=', $startDate);
+	      Order::whereBetween('created_at', [$startDate, $endDate]);
       }
     }
 
@@ -79,14 +75,11 @@ class OrderController {
     }
 
     $order['products'] = $this->getOrderProducts($id);
-
     $this->apiResponse($order, 'ok', 200);
   }
 
   private function getOrderProducts($orderId): array {
-    //OrderProduct::init();
     $orderProducts = OrderProduct::where('order_id', '=', $orderId)->get();
-    //$orderProducts = OrderProduct::get();
 
     $products = [];
     foreach ($orderProducts as $orderProduct) {
@@ -107,7 +100,6 @@ class OrderController {
 
   #[NoReturn] private function createOrder(): void {
     $jsonData = json_decode(file_get_contents("php://input"), true);
-
     $validator = Validator::make($jsonData, [
       'user_id' => 'required|numeric|exists:users',
       'room_id' => 'required|numeric|exists:rooms',
@@ -125,14 +117,12 @@ class OrderController {
     }
 
     $cartProducts = CartProduct::where('cart_id', '=', $cart['id'])->get();
-
     if (empty($cartProducts)) {
       $this->apiResponse((object)[], 'Cart is empty', 400);
     }
 
     $totalPrice = 0;
     $productItems = [];
-
     foreach ($cartProducts as $cartProduct) {
       $product = Product::find($cartProduct['product_id']);
       if ($product) {
@@ -170,7 +160,6 @@ class OrderController {
     }
 
     $order['products'] = $this->getOrderProducts($order['id']);
-
     $this->apiResponse($order, 'Order created successfully', 201);
   }
 
