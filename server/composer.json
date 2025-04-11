@@ -6,6 +6,7 @@
     "firebase/php-jwt": "^6.11",
     "cloudinary/cloudinary_php": "^3.1",
     "ext-pdo": "*",
-    "ext-fileinfo": "*"
+    "ext-fileinfo": "*",
+    "phpmailer/phpmailer": "^6.9"
   }
 }

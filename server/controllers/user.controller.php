@@ -12,10 +12,11 @@ class UserController {
   use HelperTrait;
 
   #[NoReturn] public function __construct() {
-    $id = $this->getIdFromUrl();
+    $id = $this->me()['id'];
     $method = $_SERVER['REQUEST_METHOD'];
     switch ($method) {
       case 'GET':
+        print_r($id);
         $this->getUsers();
       case 'POST':
         $this->createUser();
@@ -83,6 +84,9 @@ class UserController {
       $this->apiResponse((object)[], 'user not found', 404);
     }
     $jsonData = json_decode(file_get_contents("php://input"), true);
+    if(!$jsonData){
+     $this->apiResponse((object)[], 'There is no data to update', 404);
+    }
 		// TODO: check role from token if it is admin change ['room_id', 'role'] else it is user change ['name']
 	  $allowedFields = ['name', 'room_id', 'role'];
     $jsonData = array_intersect_key($jsonData, array_flip($allowedFields));
