@@ -1,0 +1,15 @@
+meta {
+  name: Change Image
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{CAFETERIA_URL}}/controllers/changeImage.controller.php/3
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  image: @file(C:\Users\Azaki\Pictures\Screenshots\Screenshot 2025-04-04 031910.png)
+}

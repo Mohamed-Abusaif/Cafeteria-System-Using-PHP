@@ -3,6 +3,8 @@
 use JetBrains\PhpStorm\NoReturn;
 
 require '../models/User.php';
+require '../models/Cart.php';
+require '../models/Order.php';
 require_once '../utils/HelperTrait.php';
 require '../vendor/autoload.php';
 require_once '../middlewares/validator.middleware.php';
@@ -33,10 +35,10 @@ class UserController {
 	  $page = $_GET['page'] ?? 1;
 		$limit = $_GET['limit'] ?? 10;
 	  $users = User::where('deleted_at', 'is', null);
-	  if(isset($_GET['name'])){
+	  if(isset($_GET['name']) && $_GET['name'] !== ''){
 		  $users = $users->where('name', 'like', '%'.$_GET['name'].'%');
 	  }
-	  if(isset($_GET['role'])){
+	  if(isset($_GET['role']) && $_GET['role'] !== ''){
 		  $users = $users->where('role', '=', $_GET['role']);
 	  }
 
@@ -53,6 +55,7 @@ class UserController {
       'confirm_password' => 'required|string|min:8',
       'room_id' => 'nullable|numeric|exists:rooms',
       'gender' => 'required|string|in:Male,Female',
+      'role' => 'required|string|in:User,Admin',
     ]);
     if ($validator->fails()) {
       $this->apiResponse((object)[], $validator->firstError(), 404);
@@ -73,7 +76,7 @@ class UserController {
       'password' => $hashedPassword,
       'room_id' => $jsonData['room_id'] ?? null,
       'image' => $imageUrl ?? null,
-      'role' => "user",
+      'role' => $jsonData['role'],
     ]);
     $this->apiResponse($user, 'ok', 201);
   }
@@ -112,18 +115,24 @@ class UserController {
       $this->apiResponse((object)[], 'user not found', 404);
     }
 
-	  $publicId = $user['public_id'];
-	  if ($publicId) {
-			$this->deleteImageFromCloudinary($publicId);
-	  }
+    $publicId = $user['public_id'];
+    if ($publicId) {
+      $this->deleteImageFromCloudinary($publicId);
+    }
 
-    $user = User::update($id, [
-      'room_id' => null,
-      'image' => null,
-			'public_id' => null,
-      'deleted_at' => date('Y-m-d H:i:s'),
-    ]);
-    $this->apiResponse($user, 'OK', 200);
+    $relatedCarts = Cart::where('user_id', '=', $id)->count();
+		$relatedOrders = Order::where('user_id', '=', $id)->count();
+    if ($relatedCarts > 0 || $relatedOrders > 0) {
+      User::update($id, [
+        'room_id' => null,
+        'image' => null,
+        'public_id' => null,
+        'deleted_at' => date('Y-m-d H:i:s'),
+      ]);
+    } else {
+      User::delete($id);
+    }
+    $this->apiResponse((object)[], 'User deleted successfully', 200);
   }
 }
 
