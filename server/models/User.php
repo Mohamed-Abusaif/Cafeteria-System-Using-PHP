@@ -7,7 +7,7 @@ class User extends Model {
 
 	public static function find($id): false|array {
 		$user = parent::find($id);
-		unset($user['password'], $user['public_id'], $user['created_at'], $user['updated_at'], $user['deleted_at'], $user['reset_token']);
+		unset($user['created_at'], $user['updated_at'], $user['deleted_at'], $user['reset_token']);
 		$user['room'] = Room::find($user['room_id']) ?: null;
 		return $user;
 	}
