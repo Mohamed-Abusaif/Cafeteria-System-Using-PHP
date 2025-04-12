@@ -14,12 +14,12 @@ class UserController {
   use HelperTrait;
 
   #[NoReturn] public function __construct() {
-    $id = $this->me()['id'];
+    $id = $this->getIdFromUrl();
     $method = $_SERVER['REQUEST_METHOD'];
     switch ($method) {
       case 'GET':
-        print_r($id);
-        $this->getUsers();
+        if ($id) $this->getOneUser($id);
+        else $this->getUsers();
       case 'POST':
         $this->createUser();
       case 'PATCH':
@@ -44,6 +44,15 @@ class UserController {
 
 		$users = $users->sort('id', 'desc')->paginate($page, $limit);
 	  $this->apiResponse($users, 'ok', 200);
+  }
+
+  #[NoReturn] private function getOneUser($id): void {
+    $user = User::find($id);
+    if ($user) {
+      $this->apiResponse($user, 'ok', 200);
+    } else {
+      $this->apiResponse((object)[], 'User not found', 404);
+    }
   }
 
   #[NoReturn] private function createUser(): void {

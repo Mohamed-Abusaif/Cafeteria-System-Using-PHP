@@ -268,7 +268,7 @@ async function updateProductImage() {
 
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/controllers/product/changeImage.controller.php/${productToUpdateImage.value.id}`,
+      `${import.meta.env.VITE_SERVER_URL}/controllers/changeImage.controller.php/${productToUpdateImage.value.id}`,
       {
         method: 'POST',
         body: formData,
