@@ -31,6 +31,14 @@ const formData = ref({
   image: null,
 })
 
+// Form validation errors
+const formErrors = ref({
+  name: '',
+  price: '',
+  category_id: '',
+  image: '',
+})
+
 // Modal references
 const addEditModalRef = ref(null)
 let addEditModalInstance = null
@@ -295,27 +303,41 @@ async function updateProductImage() {
 }
 
 async function saveOrUpdateProduct() {
-  // Clear any existing errors
-  clearErrors()
-
-  // Validate form
-  if (!formData.value.name) {
-    showError('Product name is required')
-    return
+  // Reset validation errors
+  formErrors.value = {
+    name: '',
+    price: '',
+    category_id: '',
+    image: '',
   }
 
-  if (!formData.value.price || isNaN(formData.value.price)) {
-    showError('Product price is required and must be a number')
-    return
+  // Validate form
+  let isValid = true
+
+  if (!formData.value.name.trim()) {
+    formErrors.value.name = 'Product name is required'
+    isValid = false
+  }
+
+  if (!formData.value.price) {
+    formErrors.value.price = 'Product price is required'
+    isValid = false
+  } else if (isNaN(formData.value.price) || parseFloat(formData.value.price) < 0) {
+    formErrors.value.price = 'Price must be a valid positive number'
+    isValid = false
   }
 
   if (!formData.value.category_id) {
-    showError('Category is required')
-    return
+    formErrors.value.category_id = 'Category is required'
+    isValid = false
   }
 
   if (!isEditing.value && !formData.value.image) {
-    showError('Product image is required for new products')
+    formErrors.value.image = 'Product image is required for new products'
+    isValid = false
+  }
+
+  if (!isValid) {
     return
   }
 
@@ -631,32 +653,37 @@ function clearFilters() {
                 <input
                   type="text"
                   class="form-control"
+                  :class="{ 'is-invalid': formErrors.name }"
                   id="productName"
                   v-model="formData.name"
                   required
                 />
+                <div class="invalid-feedback" v-if="formErrors.name">{{ formErrors.name }}</div>
               </div>
 
               <div class="mb-3">
                 <label for="productPrice" class="form-label">Price</label>
-                <div class="input-group">
+                <div class="input-group" :class="{ 'is-invalid': formErrors.price }">
                   <span class="input-group-text">$</span>
                   <input
                     type="number"
                     step="0.01"
                     min="0"
                     class="form-control"
+                    :class="{ 'is-invalid': formErrors.price }"
                     id="productPrice"
                     v-model="formData.price"
                     required
                   />
                 </div>
+                <div class="invalid-feedback" v-if="formErrors.price">{{ formErrors.price }}</div>
               </div>
 
               <div class="mb-3">
                 <label for="productCategory" class="form-label">Category</label>
                 <select
                   class="form-select"
+                  :class="{ 'is-invalid': formErrors.category_id }"
                   id="productCategory"
                   v-model="formData.category_id"
                   required
@@ -666,6 +693,7 @@ function clearFilters() {
                     {{ category.name }}
                   </option>
                 </select>
+                <div class="invalid-feedback" v-if="formErrors.category_id">{{ formErrors.category_id }}</div>
               </div>
 
               <div class="mb-3">
@@ -685,6 +713,7 @@ function clearFilters() {
                 <input
                   type="file"
                   class="form-control"
+                  :class="{ 'is-invalid': formErrors.image }"
                   id="productImage"
                   accept="image/*"
                   @change="handleImageChange"
@@ -697,6 +726,7 @@ function clearFilters() {
                       : 'Please upload a product image.'
                   }}
                 </small>
+                <div class="invalid-feedback" v-if="formErrors.image">{{ formErrors.image }}</div>
               </div>
 
               <div v-if="imagePreview" class="mb-3 text-center">

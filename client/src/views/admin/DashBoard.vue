@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import LogoutButton from '../../components/LogoutButton.vue'
 
 const data = ref({})
 const isLoading = ref(true)
@@ -31,11 +30,6 @@ onMounted(async () => {
 
 <template>
   <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="mb-0">Dashboard</h2>
-      <LogoutButton buttonClass="btn btn-outline-danger" />
-    </div>
-
     <div v-if="isLoading" class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>

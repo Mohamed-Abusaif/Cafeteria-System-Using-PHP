@@ -1,0 +1,1022 @@
+{
+  "info": {
+    "name": "Cafeteria-PHP",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Change Password",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/auth/changePassword.controller.php/2",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "auth",
+                "changePassword.controller.php",
+                "2"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"12345678\",\n  \"new_password\": \"123456789\",\n  \"confirm_password\": \"123456789\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/auth/login.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "auth",
+                "login.controller.php"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"bob@example.com\",\r\n  \"password\": \"123456789\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "ME",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/auth/login.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "auth",
+                "login.controller.php"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Create Category",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/category.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "category.controller.php"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"true\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/category.controller.php/10",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "category.controller.php",
+                "10"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Get Categories",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/category.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "category.controller.php"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Get One Category",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/category.controller.php/2",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "category.controller.php",
+                "2"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/category.controller.php/10",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "category.controller.php",
+                "10"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"false\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "get dashboard",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/dashboard.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "dashboard.controller.php"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "Cancel Order",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/order.controller.php/5",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "order.controller.php",
+                "5"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Create Order",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/order.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "order.controller.php"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"user_id\":1,\r\n  \"room_id\":1,\r\n  \"notes\":\"dfghjk\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get All Orders",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/order.controller.php?limit=2&page=1",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "order.controller.php?limit=2&page=1"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "user_id",
+                  "value": "1"
+                },
+                {
+                  "key": "deleted_at",
+                  "value": "null"
+                },
+                {
+                  "key": "start_date",
+                  "value": "2025-03-20 15:07:23"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-03-30 15:07:23"
+                },
+                {
+                  "key": "status",
+                  "value": "processing"
+                },
+                {
+                  "key": "status",
+                  "value": "delivered"
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Get Order",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/order.controller.php/5",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "order.controller.php",
+                "5"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Update Order",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/order.controller.php/1",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "order.controller.php",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\":\"delivered\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rooms",
+      "item": [
+        {
+          "name": "Create Room",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/room.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "room.controller.php"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Room A\",\n  \"description\": \"18\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Room",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/room.controller.php/2",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "room.controller.php",
+                "2"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Get Rooms",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/room.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "room.controller.php"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Update Room",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/room.controller.php/6",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "room.controller.php",
+                "6"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \n    \"name\": \"Room Bt\"\n//   \"description\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Change Image",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/auth/changeImage.controller.php/21",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "auth",
+                "changeImage.controller.php",
+                "21"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "value": [
+                    "C:\\Users\\Azaki\\Pictures\\Screenshots\\Screenshot 2025-03-19 180109.png"
+                  ],
+                  "disabled": false,
+                  "type": "default"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/user.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "user.controller.php"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ahmed\",\n  \"email\": \"ahmed@gmail.com\",\n  \"password\": \"12345678\",\n  \"confirm_password\": \"12345678\",\n  \"gender\": \"Male\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/user.controller.php/26",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "user.controller.php",
+                "26"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/user.controller.php/21",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "user.controller.php",
+                "21"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Ahmed\",\r\n  \"room_id\": 15,\r\n  \"role\": \"Admin\",\r\n  \"email\": \"sd\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Users",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/user.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "user.controller.php"
+              ],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "User"
+                },
+                {
+                  "key": "name",
+                  "value": "na"
+                },
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Create Product",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/product.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "product.controller.php"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Tea",
+                  "disabled": false,
+                  "type": "default"
+                },
+                {
+                  "key": "price",
+                  "value": "100.1",
+                  "disabled": false,
+                  "type": "default"
+                },
+                {
+                  "key": "image",
+                  "value": [
+                    "C:\\Users\\Azaki\\Pictures\\Screenshots\\Screenshot 2025-04-11 002121.png"
+                  ],
+                  "disabled": false,
+                  "type": "default"
+                },
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "disabled": false,
+                  "type": "default"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change Image",
+          "event": [],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/changeImage.controller.php/3",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "changeImage.controller.php",
+                "3"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "value": [
+                    "C:\\Users\\Azaki\\Pictures\\Screenshots\\Screenshot 2025-04-04 031910.png"
+                  ],
+                  "disabled": false,
+                  "type": "default"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "event": [],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/product.controller.php/4",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "product.controller.php",
+                "4"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Get Products",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/product.controller.php",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "product.controller.php"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "name",
+                  "value": "i"
+                },
+                {
+                  "key": "category_id",
+                  "value": "3"
+                },
+                {
+                  "key": "availability",
+                  "value": "unavailable"
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Get One Product",
+          "event": [],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/product.controller.php/2",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "product.controller.php",
+                "2"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Update Product",
+          "event": [],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{CAFETERIA_URL}}/controllers/product.controller.php/4",
+              "protocol": "",
+              "host": [
+                "{{CAFETERIA_URL}}"
+              ],
+              "path": [
+                "controllers",
+                "product.controller.php",
+                "4"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Tea\",\r\n  \"price\": 2.25,\r\n  \"category_id\": 2,\r\n  \"availability\": \"unavailable\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "CAFETERIA_URL",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}
