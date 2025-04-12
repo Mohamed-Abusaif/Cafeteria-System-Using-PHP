@@ -14,6 +14,16 @@ const router = createRouter({
       component: () => import('../views/admin/DashBoard.vue'),
     },
     {
+      path: '/dashboard/users',
+      name: 'User',
+      component: () => import('../views/admin/UserPage.vue'),
+    },
+    {
+      path: '/dashboard/categories',
+      name: 'Category',
+      component: () => import('../views/admin/CategoryPage.vue'),
+    },
+    {
       path: '/dashboard/rooms',
       name: 'Room',
       component: () => import('../views/admin/RoomPage.vue'),

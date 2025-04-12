@@ -1,0 +1,19 @@
+meta {
+  name: Get Products
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{CAFETERIA_URL}}/controllers/product.controller.php
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~limit: 2
+  ~page: 2
+  ~name: i
+  ~category_id: 3
+  ~availability: unavailable
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Update Product
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{CAFETERIA_URL}}/controllers/product.controller.php/4
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Tea",
+    "price": 2.25,
+    "category_id": 2,
+    "availability": "unavailable"
+  }
+}

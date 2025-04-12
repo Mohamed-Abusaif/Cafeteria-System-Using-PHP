@@ -2,53 +2,52 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { Modal } from 'bootstrap'
 
-const rooms = ref([])
+const categories = ref([])
 const isLoading = ref(true)
 const error = ref(null)
 
-const formRoomName = ref('')
-const formRoomDescription = ref('')
+const formCategoryName = ref('')
 const addEditModalRef = ref(null)
 let addEditModalInstance = null
 const isEditing = ref(false)
-const editingRoomId = ref(null)
+const editingCategoryId = ref(null)
 
 const deleteModalRef = ref(null)
 let deleteModalInstance = null
-const roomToDelete = ref(null)
+const categoryToDelete = ref(null)
 
 const modalTitle = computed(() => {
-  return isEditing.value ? `Update Room#${editingRoomId.value}` : 'Add New Room'
+  return isEditing.value ? `Update Category#${editingCategoryId.value}` : 'Add New Category'
 })
 
-async function fetchRooms() {
+async function fetchCategories() {
   isLoading.value = true
   error.value = null
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/controllers/room.controller.php`,
+      `${import.meta.env.VITE_SERVER_URL}/controllers/category.controller.php`,
     )
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     const data = await response.json()
     if (data && data.data) {
-      rooms.value = data.data
+      categories.value = data.data
     } else {
       if (response.ok && data && Array.isArray(data.data)) {
-        rooms.value = []
+        categories.value = []
       } else {
-        throw new Error(data.message || 'Failed to parse rooms data.')
+        throw new Error(data.message || 'Failed to parse categories data.')
       }
     }
   } catch (err) {
     error.value = err.message
-    rooms.value = []
+    categories.value = []
   } finally {
     isLoading.value = false
   }
 }
 
 onMounted(async () => {
-  await fetchRooms()
+  await fetchCategories()
   await nextTick()
   if (addEditModalRef.value) {
     addEditModalInstance = new Modal(addEditModalRef.value)
@@ -60,32 +59,30 @@ onMounted(async () => {
 
 function openAddModal() {
   isEditing.value = false
-  editingRoomId.value = null
-  formRoomName.value = ''
-  formRoomDescription.value = ''
+  editingCategoryId.value = null
+  formCategoryName.value = ''
   if (addEditModalInstance) {
     addEditModalInstance.show()
   } else {
-    const modalElement = document.getElementById('addEditRoomModal')
+    const modalElement = document.getElementById('addEditCategoryModal')
     if (modalElement) new Modal(modalElement).show()
   }
 }
 
-function openUpdateModal(room) {
+function openUpdateModal(category) {
   isEditing.value = true
-  editingRoomId.value = room.id
-  formRoomName.value = room.name
-  formRoomDescription.value = room.description
+  editingCategoryId.value = category.id
+  formCategoryName.value = category.name
   if (addEditModalInstance) {
     addEditModalInstance.show()
   } else {
-    const modalElement = document.getElementById('addEditRoomModal')
+    const modalElement = document.getElementById('addEditCategoryModal')
     if (modalElement) new Modal(modalElement).show()
   }
 }
 
-function openDeleteModal(room) {
-  roomToDelete.value = room
+function openDeleteModal(category) {
+  categoryToDelete.value = category
   if (deleteModalInstance) {
     deleteModalInstance.show()
   } else {
@@ -94,28 +91,27 @@ function openDeleteModal(room) {
   }
 }
 
-async function saveOrUpdateRoom() {
-  if (!formRoomName.value) {
-    alert('Room name is required.')
+async function saveOrUpdateCategory() {
+  if (!formCategoryName.value) {
+    alert('Category name is required.')
     return
   }
 
-  let url = `${import.meta.env.VITE_SERVER_URL}/controllers/room.controller.php`
+  let url = `${import.meta.env.VITE_SERVER_URL}/controllers/category.controller.php`
   let method = 'POST'
-  const roomData = {
-    name: formRoomName.value,
-    description: formRoomDescription.value,
+  const categoryData = {
+    name: formCategoryName.value,
   }
 
-  if (isEditing.value && editingRoomId.value) {
+  if (isEditing.value && editingCategoryId.value) {
     method = 'PATCH'
-    url += `/${editingRoomId.value}`
+    url += `/${editingCategoryId.value}`
   }
 
   try {
     const response = await fetch(url, {
       method: method,
-      body: JSON.stringify(roomData),
+      body: JSON.stringify(categoryData),
     })
     const result = await response.json()
 
@@ -123,21 +119,21 @@ async function saveOrUpdateRoom() {
       if (addEditModalInstance) {
         addEditModalInstance.hide()
       }
-      await fetchRooms()
+      await fetchCategories()
     } else {
-      throw new Error(result.message || `Failed to ${isEditing.value ? 'update' : 'save'} room.`)
+      throw new Error(result.message || `Failed to ${isEditing.value ? 'update' : 'save'} category.`)
     }
   } catch (err) {
-    alert(`Error ${isEditing.value ? 'updating' : 'saving'} room: ${err.message}`)
+    alert(`Error ${isEditing.value ? 'updating' : 'saving'} category: ${err.message}`)
   }
 }
 
 async function confirmDelete() {
-  if (!roomToDelete.value) return
+  if (!categoryToDelete.value) return
 
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/controllers/room.controller.php/${roomToDelete.value.id}`,
+      `${import.meta.env.VITE_SERVER_URL}/controllers/category.controller.php/${categoryToDelete.value.id}`,
       {
         method: 'DELETE',
       },
@@ -148,14 +144,14 @@ async function confirmDelete() {
       if (deleteModalInstance) {
         deleteModalInstance.hide()
       }
-      await fetchRooms()
+      await fetchCategories()
     } else {
-      throw new Error(result.message || 'Failed to delete room.')
+      throw new Error(result.message || 'Failed to delete category.')
     }
   } catch (err) {
-    alert(`Error deleting room: ${err.message}`)
+    alert(`Error deleting category: ${err.message}`)
   } finally {
-    roomToDelete.value = null
+    categoryToDelete.value = null
   }
 }
 </script>
@@ -164,10 +160,10 @@ async function confirmDelete() {
   <div class="full-width-container mt-2">
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-3 px-3">
-      <h2 class="mb-0">Rooms Details</h2>
+      <h2 class="mb-0">Categories Details</h2>
       <!-- Button now calls openAddModal -->
       <button type="button" class="btn btn-primary" @click="openAddModal">
-        <i class="bi bi-plus-circle me-1"></i> Add Room
+        <i class="bi bi-plus-circle me-1"></i> Add Category
       </button>
     </div>
 
@@ -178,36 +174,34 @@ async function confirmDelete() {
       </div>
     </div>
     <div v-else-if="error" class="alert alert-danger mx-3" role="alert">
-      Failed to load rooms: {{ error }}
+      Failed to load categories: {{ error }}
     </div>
 
     <!-- Table Section -->
     <div v-else class="full-width-table px-3">
-      <div v-if="!rooms || rooms.length === 0" class="alert alert-info mx-3">No rooms found.</div>
+      <div v-if="!categories || categories.length === 0" class="alert alert-info mx-3">No categories found.</div>
       <table v-else class="table table-hover mb-0">
         <thead class="table-light">
           <tr>
             <th scope="col" style="width: 10%">#</th>
             <th scope="col" style="width: 30%">Name</th>
-            <th scope="col" style="width: 40%">Description</th>
             <th scope="col" style="width: 20%">Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="room in rooms" :key="room.id">
-            <th scope="row">{{ room.id }}</th>
-            <td>{{ room.name }}</td>
-            <td>{{ room.description }}</td>
+          <tr v-for="category in categories" :key="category.id">
+            <th scope="row">{{ category.id }}</th>
+            <td>{{ category.name }}</td>
             <td>
               <div class="btn-group">
                 <button
                   type="button"
                   class="btn btn-sm btn-warning me-1"
-                  @click="openUpdateModal(room)"
+                  @click="openUpdateModal(category)"
                 >
                   <i class="bi bi-pencil-square"></i> Update
                 </button>
-                <button type="button" class="btn btn-sm btn-danger" @click="openDeleteModal(room)">
+                <button type="button" class="btn btn-sm btn-danger" @click="openDeleteModal(category)">
                   <i class="bi bi-trash"></i> Delete
                 </button>
               </div>
@@ -217,19 +211,19 @@ async function confirmDelete() {
       </table>
     </div>
 
-    <!-- Add/Edit Room Modal -->
+    <!-- Add/Edit Category Modal -->
     <div
       class="modal fade"
-      id="addEditRoomModal"
+      id="addEditCategoryModal"
       tabindex="-1"
-      aria-labelledby="addEditRoomModalLabel"
+      aria-labelledby="addEditCategoryModalLabel"
       aria-hidden="true"
       ref="addEditModalRef"
     >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addEditRoomModalLabel">{{ modalTitle }}</h5>
+            <h5 class="modal-title" id="addEditCategoryModalLabel">{{ modalTitle }}</h5>
             <button
               type="button"
               class="btn-close"
@@ -238,31 +232,22 @@ async function confirmDelete() {
             ></button>
           </div>
           <div class="modal-body">
-            <form @submit.prevent="saveOrUpdateRoom">
+            <form @submit.prevent="saveOrUpdateCategory">
               <div class="mb-3">
-                <label for="roomName" class="form-label">Room Name</label>
+                <label for="categoryName" class="form-label">Category Name</label>
                 <input
                   type="text"
                   class="form-control"
-                  id="roomName"
-                  v-model="formRoomName"
+                  id="categoryName"
+                  v-model="formCategoryName"
                   required
                 />
-              </div>
-              <div class="mb-3">
-                <label for="roomDescription" class="form-label">Description</label>
-                <textarea
-                  class="form-control"
-                  id="roomDescription"
-                  rows="3"
-                  v-model="formRoomDescription"
-                ></textarea>
               </div>
             </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" @click="saveOrUpdateRoom">
+            <button type="button" class="btn btn-primary" @click="saveOrUpdateCategory">
               Save Changes
             </button>
           </div>
@@ -291,7 +276,7 @@ async function confirmDelete() {
             ></button>
           </div>
           <div class="modal-body">
-            Are you sure you want to delete room "{{ roomToDelete?.name }}"?
+            Are you sure you want to delete category "{{ categoryToDelete?.name }}"?
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

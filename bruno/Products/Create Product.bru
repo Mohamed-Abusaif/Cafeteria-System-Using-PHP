@@ -1,0 +1,18 @@
+meta {
+  name: Create Product
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{CAFETERIA_URL}}/controllers/product.controller.php
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  name: Tea
+  price: 100.1
+  image: @file(C:\Users\Azaki\Pictures\Screenshots\Screenshot 2025-04-11 002121.png)
+  category_id: 1
+}

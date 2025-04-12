@@ -1,11 +1,20 @@
 <?php
 
 use JetBrains\PhpStorm\NoReturn;
+use Cloudinary\Api\Upload\UploadApi;
+use Cloudinary\Configuration\Configuration;
 
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once '../models/Product.php';
 require_once '../models/Category.php';
+require_once '../models/CartProduct.php';
+require_once '../models/OrderProduct.php';
 require_once '../utils/HelperTrait.php';
 require_once '../middlewares/validator.middleware.php';
+
+$env = parse_ini_file(__DIR__ . '/../.env');
+$cloudinary_url = 'cloudinary://' . $env['API_KEY'] . ':' . $env['API_SECRET'] . '@' . $env['CLOUD_NAME'] . '?secure=true';
+Configuration::instance($cloudinary_url);
 
 class ProductController {
 	use HelperTrait;
@@ -29,7 +38,20 @@ class ProductController {
 	}
 
 	#[NoReturn] private function getProducts(): void {
-		$products = Product::all();
+		$page = $_GET['page'] ?? 1;
+		$limit = $_GET['limit'] ?? 10;
+		$products = Product::where('deleted_at', 'is', null);
+		if(isset($_GET['name']) && $_GET['name'] !== ''){
+			$products = $products->where('name', 'like', '%'.$_GET['name'].'%');
+		}
+		if(isset($_GET['category_id']) && $_GET['category_id'] !== ''){
+			$products = $products->where('category_id', '=', $_GET['category_id']);
+		}
+		if(isset($_GET['availability']) && $_GET['availability'] !== ''){
+			$products = $products->where('availability', '=', $_GET['availability']);
+		}
+
+		$products = $products->sort('id', 'desc')->paginate($page, $limit);
 		$this->apiResponse($products, 'ok', 200);
 	}
 
@@ -43,10 +65,10 @@ class ProductController {
 	}
 
 	#[NoReturn] private function createProduct(): void {
-		$jsonData = json_decode(file_get_contents("php://input"), true);
-		$validator = Validator::make($jsonData, [
+		$validator = Validator::make($_POST, [
 			'name' => 'required|string',
 			'price' => 'required|numeric',
+			'image' => 'required|file|mimes:jpg,jpeg,png,gif|max:2048',
 			'category_id' => 'required|exists:categories',
 			'availability' => 'nullable|in:available,unavailable',
 		]);
@@ -54,49 +76,35 @@ class ProductController {
 			$this->apiResponse((object)[], $validator->firstError(), 400);
 		}
 
-		// Handle file upload for product image
-		if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-			$this->apiResponse((object)[], 'Product image is required', 400);
+		$imageUrl = null;
+		$publicId = null;
+		if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+			$file = $_FILES['image']['tmp_name'];
+			try {
+				$upload = new UploadApi();
+				$response = $upload->upload($file, ['folder' => 'products']);
+				$imageUrl = $response['secure_url'];
+				$publicId = $response['public_id'];
+			} catch (Exception $e) {
+				$this->apiResponse((object)[], 'Image upload failed: ' . $e->getMessage(), 400);
+			}
 		}
 
-		$validator = Validator::make(null, [], $_FILES);
-		$validator->rules = [
-			'image' => 'required|file|mimes:jpg,jpeg,png,gif|max:2048',
-		];
-		$validator->validate();
-		
-		if ($validator->fails()) {
-			$this->apiResponse((object)[], $validator->firstError(), 400);
-		}
-
-		// Process file upload
-		$uploadDir = '../uploads/products/';
-		if (!file_exists($uploadDir)) {
-			mkdir($uploadDir, 0777, true);
-		}
-
-		$fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-		$fileName = uniqid() . '.' . $fileExtension;
-		$targetPath = $uploadDir . $fileName;
-
-		if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
-			$this->apiResponse((object)[], 'Failed to upload image', 500);
-		}
-
-		// Create product with image path
 		$product = Product::create([
-			'name' => $jsonData['name'],
-			'price' => $jsonData['price'],
-			'category_id' => $jsonData['category_id'],
-			'image' => 'uploads/products/' . $fileName,
-			'availability' => $jsonData['availability'] ?? 'available',
+			'name' => $_POST['name'],
+			'price' => $_POST['price'],
+			'image' => $imageUrl,
+			'public_id' => $publicId,
+			'category_id' => $_POST['category_id'],
+			'availability' => $_POST['availability'] ?? 'available',
 		]);
-		
 		$this->apiResponse($product, 'Product created successfully', 201);
 	}
 
 	#[NoReturn] private function updateProduct($id): void {
 		$jsonData = json_decode(file_get_contents("php://input"), true);
+		$allowedFields = ['name', 'price', 'category_id', 'availability'];
+		$jsonData = array_intersect_key($jsonData, array_flip($allowedFields));
 		$validator = Validator::make($jsonData, [
 			'name' => 'nullable|string',
 			'price' => 'nullable|numeric',
@@ -107,61 +115,27 @@ class ProductController {
 			$this->apiResponse((object)[], $validator->firstError(), 400);
 		}
 
-		// Handle file upload for product image if provided
-		if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-			$validator = Validator::make(null, [], $_FILES);
-			$validator->rules = [
-				'image' => 'required|file|mimes:jpg,jpeg,png,gif|max:2048',
-			];
-			$validator->validate();
-			
-			if ($validator->fails()) {
-				$this->apiResponse((object)[], $validator->firstError(), 400);
-			}
-
-			// Process file upload
-			$uploadDir = '../uploads/products/';
-			if (!file_exists($uploadDir)) {
-				mkdir($uploadDir, 0777, true);
-			}
-
-			$fileExtension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-			$fileName = uniqid() . '.' . $fileExtension;
-			$targetPath = $uploadDir . $fileName;
-
-			if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
-				$this->apiResponse((object)[], 'Failed to upload image', 500);
-			}
-
-			// Add image path to update data
-			$jsonData['image'] = 'uploads/products/' . $fileName;
-			
-			// Delete old image if exists
-			$oldProduct = Product::find($id);
-			if ($oldProduct && isset($oldProduct->image)) {
-				$oldImagePath = '../' . $oldProduct->image;
-				if (file_exists($oldImagePath)) {
-					unlink($oldImagePath);
-				}
-			}
-		}
-
 		$product = Product::update($id, $jsonData);
 		$this->apiResponse($product, 'Product updated successfully', 200);
 	}
 
 	#[NoReturn] private function deleteProduct($id): void {
-		// Check if product exists and isn't already deleted
 		$product = Product::find($id);
 		if (!$product) {
 			$this->apiResponse((object)[], 'Product not found', 404);
 		}
 
-		// Soft delete the product instead of hard deleting
-		Product::softDelete($id);
+		$relatedCarts = CartProduct::where('product_id', '=', $id)->count();
+		$relatedOrders = OrderProduct::where('product_id', '=', $id)->count();
+		if ($relatedCarts > 0 || $relatedOrders > 0) {
+			Product::update($id, ['deleted_at' => date('Y-m-d H:i:s')]);
+		} else {
+			$publicId = $product['public_id'];
+			$this->deleteImageFromCloudinary($publicId);
+			Product::delete($id);
+		}
 		$this->apiResponse((object)[], 'Product deleted successfully', 200);
 	}
 }
 
 new ProductController();
-?>
