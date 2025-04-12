@@ -33,7 +33,6 @@ trait HelperTrait {
 		$url = $_SERVER['REQUEST_URI'];
 
 		$urlParts = explode('/', $url);
-    print_r($urlParts);
 		return (int)end($urlParts);
 	}
 

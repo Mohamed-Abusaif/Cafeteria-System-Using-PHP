@@ -29,10 +29,15 @@ const router = createRouter({
       component: () => import('../views/admin/RoomPage.vue'),
     },
     {
+      path: '/dashboard/products',
+      name: 'Product',
+      component: () => import('../views/admin/ProductPage.vue'),
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('../views/NotFound.vue'),
-    }
+    },
   ],
 })
 
