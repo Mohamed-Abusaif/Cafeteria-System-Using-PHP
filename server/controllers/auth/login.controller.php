@@ -63,7 +63,6 @@ class Login {
     try {
       $decoded = JWT::decode($token, new Key($secretKey, 'HS256'));
       $user = User::find($decoded->id);
-      unset($user['password']);
       $this->apiResponse($user, 'OK', 200);
     } catch (ExpiredException $e) {
       $this->apiResponse((object)[], 'Token expired: ' . $e->getMessage(), 401);
