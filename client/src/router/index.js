@@ -14,6 +14,11 @@ const router = createRouter({
       component: () => import('../views/LoginPage.vue'),
     },
     {
+      path: '/reset-password',
+      name: 'ResetPassword',
+      component: () => import('../views/ResetPassword.vue'),
+    },
+    {
       path: '/profile',
       name: 'Profile',
       component: () => import('../views/ProfilePage.vue'),
@@ -47,6 +52,16 @@ const router = createRouter({
       path: '/dashboard/products',
       name: 'Product',
       component: () => import('../views/admin/ProductPage.vue'),
+    },
+    {
+      path: '/dashboard/orders',
+      name: 'Order',
+      component: () => import('../views/admin/OrderPage.vue'),
+    },
+    {
+      path: '/dashboard/checks',
+      name: 'Check',
+      component: () => import('../views/admin/CheckPage.vue'),
     },
     {
       path: '/:pathMatch(.*)*',

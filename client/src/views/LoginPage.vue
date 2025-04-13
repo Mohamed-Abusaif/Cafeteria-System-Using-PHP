@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Modal } from 'bootstrap'
 
 const router = useRouter()
 const email = ref('')
@@ -10,6 +11,15 @@ const error = ref(null)
 const emailError = ref('')
 const passwordError = ref('')
 const showPassword = ref(false)
+
+// Forgot password modal
+const forgotEmail = ref('')
+const forgotEmailError = ref('')
+const forgotPasswordLoading = ref(false)
+const forgotPasswordSuccess = ref(false)
+const forgotPasswordError = ref(null)
+const forgotPasswordModalRef = ref(null)
+let forgotPasswordModalInstance = null
 
 onMounted(async () => {
   try {
@@ -22,8 +32,12 @@ onMounted(async () => {
     )
 
     if (response.ok) {
-
       router.push('/')
+    }
+
+    // Initialize modal
+    if (forgotPasswordModalRef.value) {
+      forgotPasswordModalInstance = new Modal(forgotPasswordModalRef.value)
     }
   } catch (err) {
     console.error('Error checking authentication:', err)
@@ -90,6 +104,68 @@ async function handleLogin() {
 
 function togglePasswordVisibility() {
   showPassword.value = !showPassword.value
+}
+
+function openForgotPasswordModal() {
+  forgotEmail.value = ''
+  forgotEmailError.value = ''
+  forgotPasswordSuccess.value = false
+  forgotPasswordError.value = null
+
+  if (forgotPasswordModalInstance) {
+    forgotPasswordModalInstance.show()
+  } else {
+    const modalElement = document.getElementById('forgotPasswordModal')
+    if (modalElement) new Modal(modalElement).show()
+  }
+}
+
+function validateForgotEmail() {
+  forgotEmailError.value = ''
+
+  if (!forgotEmail.value) {
+    forgotEmailError.value = 'Email is required'
+    return false
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(forgotEmail.value)) {
+    forgotEmailError.value = 'Please enter a valid email address'
+    return false
+  }
+
+  return true
+}
+
+async function sendResetLink() {
+  if (!validateForgotEmail()) return
+
+  forgotPasswordLoading.value = true
+  forgotPasswordError.value = null
+
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/controllers/auth/forgetPassword.controller.php`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: forgotEmail.value,
+        }),
+      }
+    )
+
+    const data = await response.json()
+    if (response.ok) {
+      forgotPasswordSuccess.value = true
+    } else {
+      forgotPasswordError.value = data.message || 'Failed to send reset link. Please try again.'
+    }
+  } catch (err) {
+    forgotPasswordError.value = 'Network error. Please try again.'
+    console.error('Forgot password error:', err)
+  } finally {
+    forgotPasswordLoading.value = false
+  }
 }
 </script>
 
@@ -161,7 +237,7 @@ function togglePasswordVisibility() {
 
                 <!-- Forgot Password -->
                 <div class="d-flex justify-content-end align-items-center mb-4">
-                  <a href="#" class="text-primary text-decoration-none">Forgot password?</a>
+                  <a href="#" class="text-primary text-decoration-none" @click.prevent="openForgotPasswordModal">Forgot password?</a>
                 </div>
 
                 <!-- Login Button -->
@@ -177,6 +253,75 @@ function togglePasswordVisibility() {
               </form>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div
+    class="modal fade"
+    id="forgotPasswordModal"
+    tabindex="-1"
+    aria-labelledby="forgotPasswordModalLabel"
+    aria-hidden="true"
+    ref="forgotPasswordModalRef"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="forgotPasswordModalLabel">Reset Password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div v-if="forgotPasswordSuccess" class="alert alert-success">
+            Password reset link has been sent to your email. Please check your inbox.
+          </div>
+
+          <div v-else>
+            <div v-if="forgotPasswordError" class="alert alert-danger">
+              {{ forgotPasswordError }}
+            </div>
+
+            <div class="mb-3">
+              <label for="forgotEmail" class="form-label">Email address</label>
+              <input
+                type="email"
+                class="form-control"
+                :class="{ 'is-invalid': forgotEmailError }"
+                id="forgotEmail"
+                v-model="forgotEmail"
+                placeholder="name@example.com"
+              />
+              <div class="invalid-feedback" v-if="forgotEmailError">
+                {{ forgotEmailError }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button
+            v-if="!forgotPasswordSuccess"
+            type="button"
+            class="btn btn-primary"
+            @click="sendResetLink"
+            :disabled="forgotPasswordLoading"
+          >
+            <span
+              v-if="forgotPasswordLoading"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            {{ forgotPasswordLoading ? 'Sending...' : 'Send Reset Link' }}
+          </button>
         </div>
       </div>
     </div>
