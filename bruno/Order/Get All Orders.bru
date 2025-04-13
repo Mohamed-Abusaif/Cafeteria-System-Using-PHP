@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{CAFETERIA_URL}}/controllers/order.controller.php?limit=2&page=1
+  url: {{CAFETERIA_URL}}/controllers/order.controller.php
   body: none
   auth: inherit
 }
 
 params:query {
-  limit: 2
-  page: 1
+  ~limit: 2
+  ~page: 1
   ~user_id: 1
   ~deleted_at: null
   ~start_date: 2025-03-20 15:07:23
