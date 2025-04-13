@@ -4,6 +4,7 @@ require_once '../utils/HelperTrait.php';
 require_once '../middlewares/validator.middleware.php';
 require_once '../models/Cart.php';
 require_once '../models/User.php';
+require_once '../models/Product.php';
 require_once '../models/CartProduct.php';
 class CartController {
     use HelperTrait;
@@ -104,6 +105,9 @@ class CartController {
             $this->apiResponse([], 'ok', 200);
         }else {
             $cartProducts = CartProduct::where('cart_id', '=', $cart['id'])->get();
+            foreach ($cartProducts as &$product) {
+                $product['product'] = Product::find($product['product_id']);
+            }
             $this->apiResponse($cartProducts, 'ok', 200);
         }
     }

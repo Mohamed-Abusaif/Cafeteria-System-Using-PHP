@@ -52,7 +52,7 @@ async function handleLogout() {
     if (response.ok) {
       userData.value = {}
       router.push('/').then(() => {
-        window.location.reload();
+        window.location.reload()
       })
     } else {
       const data = await response.json()
@@ -92,11 +92,14 @@ async function handleLogout() {
           class="dropdown-menu dropdown-menu-end"
           :class="{ show: showDropdown }"
           aria-labelledby="userDropdown"
-          style="position: absolute; right: 0; left: auto;"
+          style="position: absolute; right: 0; left: auto"
         >
           <template v-if="!userData.id">
             <li>
-              <router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/login">
+              <router-link
+                class="dropdown-item d-flex justify-content-between align-items-center"
+                to="/login"
+              >
                 <span>Login</span>
                 <i class="bi bi-box-arrow-in-right"></i>
               </router-link>
@@ -105,20 +108,30 @@ async function handleLogout() {
 
           <template v-else-if="userData.role === 'Admin'">
             <li>
-              <router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/profile">
+              <router-link
+                class="dropdown-item d-flex justify-content-between align-items-center"
+                to="/profile"
+              >
                 <span>Profile</span>
                 <i class="bi bi-person-bounding-box"></i>
               </router-link>
             </li>
             <li>
-              <router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/dashboard">
+              <router-link
+                class="dropdown-item d-flex justify-content-between align-items-center"
+                to="/dashboard"
+              >
                 <span>Dashboard</span>
                 <i class="bi bi-graph-up"></i>
               </router-link>
             </li>
-            <li><hr class="dropdown-divider"></li>
+            <li><hr class="dropdown-divider" /></li>
             <li>
-              <a href="#" @click.prevent="handleLogout" class="dropdown-item text-danger d-flex justify-content-between align-items-center">
+              <a
+                href="#"
+                @click.prevent="handleLogout"
+                class="dropdown-item text-danger d-flex justify-content-between align-items-center"
+              >
                 <span>Logout</span>
                 <i class="bi bi-box-arrow-right"></i>
               </a>
@@ -127,26 +140,39 @@ async function handleLogout() {
 
           <template v-else-if="userData.role === 'User'">
             <li>
-              <router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/profile">
+              <router-link
+                class="dropdown-item d-flex justify-content-between align-items-center"
+                to="/profile"
+              >
                 <span>Profile</span>
                 <i class="bi bi-person-bounding-box"></i>
               </router-link>
             </li>
             <li>
-              <router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/dashboard">
+              <router-link
+                class="dropdown-item d-flex justify-content-between align-items-center"
+                to="/cart"
+              >
                 <span>Cart</span>
                 <i class="bi bi-cart-dash"></i>
               </router-link>
             </li>
             <li>
-              <router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/">
+              <router-link
+                class="dropdown-item d-flex justify-content-between align-items-center"
+                to="/"
+              >
                 <span>Orders</span>
                 <i class="bi bi-ui-checks"></i>
               </router-link>
             </li>
-            <li><hr class="dropdown-divider"></li>
+            <li><hr class="dropdown-divider" /></li>
             <li>
-              <a href="#" @click.prevent="handleLogout" class="dropdown-item text-danger d-flex justify-content-between align-items-center">
+              <a
+                href="#"
+                @click.prevent="handleLogout"
+                class="dropdown-item text-danger d-flex justify-content-between align-items-center"
+              >
                 <span>Logout</span>
                 <i class="bi bi-box-arrow-right"></i>
               </a>
