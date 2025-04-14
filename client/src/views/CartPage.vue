@@ -339,8 +339,21 @@ const proceedToCheckout = () => {
   router.push('/checkout')
 }
 
-onMounted(() => {
-  fetchCart()
+onMounted(async () => {
+  try {
+    // Try to get the user ID first to verify authentication
+    await getUserId()
+
+    // If successful (no error thrown), fetch the cart
+    fetchCart()
+  } catch (err) {
+    // User is not authenticated, redirect to home page
+    router.push('/')
+
+    // Optionally show a message about the redirect
+    // You could use a toast notification here if you have one
+    console.log('User not authenticated. Redirected to home page.')
+  }
 })
 </script>
 
