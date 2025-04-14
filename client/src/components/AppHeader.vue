@@ -160,7 +160,7 @@ async function handleLogout() {
             <li>
               <router-link
                 class="dropdown-item d-flex justify-content-between align-items-center"
-                to="/"
+                to="/orders"
               >
                 <span>Orders</span>
                 <i class="bi bi-ui-checks"></i>
