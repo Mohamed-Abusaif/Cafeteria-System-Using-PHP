@@ -284,7 +284,6 @@ async function updateProductImage() {
     )
 
     const result = await response.json()
-
     if (result && result.statusCode === 200) {
       if (imageUpdateModalInstance) {
         imageUpdateModalInstance.hide()
@@ -587,7 +586,7 @@ function clearFilters() {
 
       <!-- Pagination -->
       <div
-        v-if="totalPages > 1"
+        v-if="totalPages > 0"
         class="d-flex justify-content-between align-items-center px-3 py-2"
       >
         <div>Showing {{ products.length }} of {{ totalItems }} products</div>
@@ -693,7 +692,9 @@ function clearFilters() {
                     {{ category.name }}
                   </option>
                 </select>
-                <div class="invalid-feedback" v-if="formErrors.category_id">{{ formErrors.category_id }}</div>
+                <div class="invalid-feedback" v-if="formErrors.category_id">
+                  {{ formErrors.category_id }}
+                </div>
               </div>
 
               <div class="mb-3">
@@ -708,7 +709,7 @@ function clearFilters() {
                 </select>
               </div>
 
-              <div class="mb-3">
+              <div v-if="!isEditing" class="mb-3">
                 <label for="productImage" class="form-label">Product Image</label>
                 <input
                   type="file"
