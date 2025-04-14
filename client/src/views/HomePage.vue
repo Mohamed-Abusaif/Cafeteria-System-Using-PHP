@@ -23,6 +23,9 @@ const showToast = ref(false)
 const toastMessage = ref('')
 const toastType = ref('success') // success or error
 
+// Add this with your other ref declarations
+const addingToCartId = ref(null)
+
 // Fetch featured products and categories
 onMounted(async () => {
   await fetchUserData()
@@ -119,12 +122,17 @@ function navigateToProducts() {
 }
 
 async function addToCart(productId) {
-  isLoading.value = true
+  // Set loading state for this specific product
+  addingToCartId.value = productId
+
   try {
+    // Check if user is logged in
     if (!userData.value.id) {
       displayToast('Please login to add to cart', 'error')
+      addingToCartId.value = null
       return
     }
+
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/controllers/cart.controller.php`,
       {
@@ -139,15 +147,33 @@ async function addToCart(productId) {
         }),
       },
     )
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-    const resData = await response.json()
-    if (resData && resData.data) {
-      displayToast('Product added to cart successfully!', 'success')
+
+    // Parse the response as text first
+    const responseText = await response.text()
+
+    // Try to parse as JSON if possible
+    let responseData
+    try {
+      responseData = JSON.parse(responseText)
+    } catch (e) {
+      console.error('Invalid JSON response:', responseText)
+      throw new Error('Server returned invalid response format')
     }
+
+    // Check for success status
+    if (!response.ok) {
+      const errorMessage = responseData.message || `Error: ${response.status}`
+      throw new Error(errorMessage)
+    }
+
+    // Display success message
+    displayToast(responseData.message || 'Product added to cart successfully!', 'success')
   } catch (error) {
-    displayToast('Failed to add to cart', 'error')
+    console.error('Add to cart error:', error)
+    displayToast(error.message || 'Failed to add to cart', 'error')
   } finally {
-    isLoading.value = false
+    // Clear loading state for this product
+    addingToCartId.value = null
   }
 }
 
@@ -430,10 +456,22 @@ function goToLastPage() {
                               ? 'btn-primary'
                               : 'btn-outline-secondary'
                           "
-                          :disabled="product.availability !== 'available'"
+                          :disabled="
+                            product.availability !== 'available' || addingToCartId === product.id
+                          "
                           @click="addToCart(product.id)"
                         >
+                          <!-- Show spinner when this specific product is loading -->
+                          <span
+                            v-if="addingToCartId === product.id"
+                            class="spinner-border spinner-border-sm me-2"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+
+                          <!-- Show icon when not loading -->
                           <i
+                            v-else
                             class="bi"
                             :class="
                               product.availability === 'available'
@@ -441,7 +479,15 @@ function goToLastPage() {
                                 : 'bi-slash-circle'
                             "
                           ></i>
-                          {{ product.availability === 'available' ? 'Add to Cart' : 'Unavailable' }}
+
+                          <!-- Dynamic button text -->
+                          {{
+                            addingToCartId === product.id
+                              ? 'Adding...'
+                              : product.availability === 'available'
+                                ? 'Add to Cart'
+                                : 'Unavailable'
+                          }}
                         </button>
                       </div>
                     </div>
