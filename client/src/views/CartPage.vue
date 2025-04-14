@@ -12,6 +12,15 @@
             </router-link>
           </div>
 
+          <!-- Success Message Toast -->
+          <div v-if="successMessage" class="alert alert-success custom-alert" role="alert">
+            <font-awesome-icon :icon="['fas', 'check-circle']" class="mr-2" />
+            {{ successMessage }}
+            <button type="button" class="close" @click="clearSuccess" aria-label="Close">
+              <span>&times;</span>
+            </button>
+          </div>
+
           <!-- Initial Loading State -->
           <div v-if="initialLoading" class="text-center py-5">
             <div class="spinner-loader">
@@ -48,7 +57,7 @@
               Looks like you haven't added any products to your cart yet.
             </p>
             <router-link to="/" class="btn btn-primary browse-btn mt-3"
-              >Browse Products</router-link
+            >Browse Products</router-link
             >
           </div>
 
@@ -130,7 +139,7 @@
                 <button
                   class="checkout-btn"
                   @click="proceedToCheckout"
-                  :disabled="initialLoading || operationLoading"
+                  :disabled="initialLoading || operationLoading || cartIsEmpty"
                 >
                   <font-awesome-icon :icon="['fas', 'lock']" class="mr-2" />
                   Proceed to Checkout
@@ -141,6 +150,109 @@
         </div>
       </div>
     </main>
+
+    <!-- Checkout Modal -->
+    <div v-if="showCheckoutModal" class="checkout-modal-overlay">
+      <div class="checkout-modal">
+        <div class="checkout-modal-header">
+          <h2>Complete Your Order</h2>
+          <button class="close-modal-btn" @click="closeCheckoutModal" aria-label="Close">
+            <span>&times;</span>
+          </button>
+        </div>
+
+        <div class="checkout-modal-body">
+          <!-- Error Message -->
+          <div v-if="error" class="alert alert-danger checkout-error" role="alert">
+            <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-2" />
+            {{ error }}
+          </div>
+
+          <!-- Order Summary -->
+          <div class="checkout-summary mb-4">
+            <h3>Order Summary</h3>
+            <div class="checkout-items">
+              <div v-for="(item, index) in cart" :key="item.id || index" class="checkout-item">
+                <span class="checkout-item-name">{{ getProductTitle(item) }}</span>
+                <span class="checkout-item-quantity">x{{ item.quantity }}</span>
+                <span class="checkout-item-price">${{ getItemTotal(item).toFixed(2) }}</span>
+              </div>
+            </div>
+            <div class="checkout-total">
+              <span class="checkout-total-label">Total:</span>
+              <span class="checkout-total-value">${{ subtotal.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <!-- Checkout Form -->
+          <div class="checkout-form">
+            <div class="form-group mb-3">
+              <label for="room-select" class="form-label">Delivery Room <span class="required">*</span></label>
+              <div v-if="roomsLoading" class="text-center py-2">
+                <div class="spinner-border spinner-border-sm" role="status">
+                  <span class="sr-only">Loading rooms...</span>
+                </div>
+                <span class="ml-2">Loading available rooms...</span>
+              </div>
+              <select
+                id="room-select"
+                v-model="checkoutForm.roomId"
+                class="form-control"
+                :disabled="checkoutLoading || roomsLoading"
+                required
+                v-else
+              >
+                <option value="" disabled>Select a room</option>
+                <option v-for="room in rooms" :key="room.id" :value="room.id">
+                  {{ room.name }}
+                </option>
+              </select>
+              <small v-if="rooms.length === 0 && !roomsLoading" class="text-danger">
+                No rooms available. Please contact support.
+              </small>
+            </div>
+
+            <div class="form-group mb-4">
+              <label for="notes" class="form-label">Additional Notes</label>
+              <textarea
+                id="notes"
+                v-model="checkoutForm.notes"
+                class="form-control"
+                placeholder="Any special requests for your order?"
+                rows="3"
+                :disabled="checkoutLoading"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="checkout-modal-footer">
+          <button
+            class="btn btn-secondary cancel-btn"
+            @click="closeCheckoutModal"
+            :disabled="checkoutLoading"
+          >
+            Cancel
+          </button>
+          <button
+            class="btn btn-primary confirm-btn"
+            @click="submitOrder"
+            :disabled="checkoutLoading || !checkoutForm.roomId || roomsLoading"
+          >
+            <span v-if="checkoutLoading">
+              <div class="spinner-border spinner-border-sm" role="status">
+                <span class="sr-only">Processing...</span>
+              </div>
+              Processing...
+            </span>
+            <span v-else>
+              <font-awesome-icon :icon="['fas', 'lock']" class="mr-2" />
+              Confirm Order
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -156,17 +268,27 @@ import {
   faPlus,
   faTrashAlt,
   faLock,
+  faCheckCircle,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-// Add icons to the library
-library.add(faChevronLeft, faExclamationCircle, faShoppingCart, faMinus, faPlus, faTrashAlt, faLock)
+library.add(faChevronLeft, faExclamationCircle, faShoppingCart, faMinus, faPlus, faTrashAlt, faLock, faCheckCircle)
 
 const router = useRouter()
 const initialLoading = ref(true)
 const operationLoading = ref(false)
 const error = ref('')
+const successMessage = ref('') // Added for success messages
 const cart = ref([])
+
+const showCheckoutModal = ref(false)
+const checkoutForm = ref({
+  roomId: '',
+  notes: ''
+})
+const checkoutLoading = ref(false)
+const rooms = ref([])
+const roomsLoading = ref(false) // Added to track rooms loading state
 
 // Computed properties
 const cartIsEmpty = computed(() => !cart.value || cart.value.length === 0)
@@ -241,6 +363,33 @@ const fetchCart = async () => {
   }
 }
 
+const fetchRooms = async () => {
+  roomsLoading.value = true
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/controllers/room.controller.php`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch rooms: ${response.status}`)
+    }
+
+    const data = await response.json()
+    rooms.value = data.data || []
+  } catch (err) {
+    console.error('Error fetching rooms:', err)
+    error.value = 'Failed to load available rooms. Please try again.'
+  } finally {
+    roomsLoading.value = false
+  }
+}
+
 // Helper methods
 const getProductImage = (item) => {
   return item.product?.image || '/assets/images/placeholder.jpg'
@@ -282,6 +431,9 @@ const updateQuantity = async (item, newQuantity) => {
 
     // Update local state
     item.quantity = newQuantity
+
+    successMessage.value = 'Quantity updated successfully'
+    setTimeout(() => { successMessage.value = '' }, 3000) // Clear after 3 seconds
   } catch (err) {
     error.value = err.message || 'Failed to update item quantity'
   } finally {
@@ -324,6 +476,9 @@ const removeItem = async (item) => {
 
     // Update local state - filter by product_id since that's what the backend uses
     cart.value = cart.value.filter((cartItem) => cartItem.product_id !== item.product_id)
+
+    successMessage.value = 'Item removed from cart'
+    setTimeout(() => { successMessage.value = '' }, 3000) // Clear after 3 seconds
   } catch (err) {
     error.value = err.message || 'Failed to remove item'
   } finally {
@@ -335,8 +490,75 @@ const clearError = () => {
   error.value = ''
 }
 
-const proceedToCheckout = () => {
-  router.push('/checkout')
+const clearSuccess = () => {
+  successMessage.value = ''
+}
+
+const proceedToCheckout = async () => {
+  checkoutForm.value = {
+    roomId: '',
+    notes: ''
+  }
+
+  error.value = ''
+
+  if (rooms.value.length === 0) {
+    await fetchRooms()
+  }
+
+  showCheckoutModal.value = true
+}
+
+const submitOrder = async () => {
+  if (!checkoutForm.value.roomId) {
+    error.value = 'Please select a room for delivery'
+    return
+  }
+
+  checkoutLoading.value = true
+  try {
+    const userId = await getUserId()
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/controllers/order.controller.php`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          room_id: parseInt(checkoutForm.value.roomId, 10),
+          notes: checkoutForm.value.notes || null,
+        }),
+      }
+    )
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.message || `Failed to create order (${response.status})`)
+    }
+
+    const orderData = await response.json()
+    console.log('Order created:', orderData)
+
+    showCheckoutModal.value = false
+
+    successMessage.value = 'Your order has been placed successfully!'
+    setTimeout(() => {
+      successMessage.value = ''
+      router.push('/orders')
+    }, 2000)
+  } catch (err) {
+    error.value = err.message || 'Failed to create order'
+  } finally {
+    checkoutLoading.value = false
+  }
+}
+
+const closeCheckoutModal = () => {
+  showCheckoutModal.value = false
+  error.value = '' 
 }
 
 onMounted(async () => {
@@ -346,6 +568,8 @@ onMounted(async () => {
 
     // If successful (no error thrown), fetch the cart
     fetchCart()
+    fetchRooms()
+    
   } catch (err) {
     // User is not authenticated, redirect to home page
     router.push('/')
@@ -571,6 +795,43 @@ onMounted(async () => {
   cursor: not-allowed;
 }
 
+/* Custom alert styles with animation */
+.custom-alert {
+  position: relative;
+  padding: 1rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.close:hover {
+  opacity: 1;
+}
+
 /* Add proper styles for sr-only to hide text visually but keep it for screen readers */
 .sr-only {
   position: absolute;
@@ -588,4 +849,295 @@ onMounted(async () => {
 .mr-2 {
   margin-right: 0.5rem;
 }
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+/* Checkout Modal Styles */
+.checkout-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1060;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.checkout-modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.checkout-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.checkout-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  padding: 0;
+  cursor: pointer;
+  color: #6c757d;
+}
+
+.checkout-modal-body {
+  padding: 1.5rem;
+}
+
+.checkout-error {
+  margin-bottom: 1rem;
+}
+
+.checkout-summary {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.checkout-summary h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.checkout-items {
+  margin-bottom: 1rem;
+}
+
+.checkout-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.checkout-item-name {
+  flex-grow: 1;
+}
+
+.checkout-item-quantity {
+  margin: 0 1rem;
+  color: #6c757d;
+}
+
+.checkout-item-price {
+  font-weight: 500;
+}
+
+.checkout-total {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #dee2e6;
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+
+.checkout-form {
+  margin-top: 1rem;
+}
+
+.form-label {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.required {
+  color: #dc3545;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.form-control:focus {
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+textarea.form-control {
+  resize: vertical;
+}
+
+.checkout-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.cancel-btn {
+  margin-right: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.cancel-btn:hover {
+  background-color: #5a6268;
+}
+
+.confirm-btn {
+  padding: 0.5rem 1.25rem;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.confirm-btn:hover {
+  background-color: #0b5ed7;
+}
+
+.confirm-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Responsive styles */
+@media (max-width: 767.98px) {
+  .cart-item {
+    flex-direction: column;
+  }
+
+  .item-image {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .product-image {
+    max-height: 200px;
+    width: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .item-details {
+    margin-bottom: 1rem;
+  }
+
+  .item-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .remove-btn {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .checkout-modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .checkout-modal-header {
+    padding: 1rem;
+  }
+
+  .checkout-modal-body,
+  .checkout-modal-footer {
+    padding: 1rem;
+  }
+
+  .checkout-item {
+    flex-wrap: wrap;
+  }
+
+  .checkout-item-name {
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+
+  .checkout-item-quantity,
+  .checkout-item-price {
+    margin: 0;
+  }
+
+  .checkout-modal-footer {
+    flex-direction: column;
+  }
+
+  .cancel-btn {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  .confirm-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Animations for button interactions */
+.quantity-btn:active,
+.remove-btn:active,
+.checkout-btn:active,
+.cancel-btn:active,
+.confirm-btn:active {
+  transform: scale(0.97);
+}
+
+/* Hover effects */
+.browse-btn:hover {
+  background-color: #0b5ed7;
+}
+
+/* Focus styles for accessibility */
+.form-control:focus,
+.quantity-btn:focus,
+.remove-btn:focus,
+.checkout-btn:focus,
+.close-modal-btn:focus,
+.browse-btn:focus,
+.cancel-btn:focus,
+.confirm-btn:focus {
+  outline: 2px solid #86b7fe;
+  outline-offset: 2px;
+}
+
 </style>
