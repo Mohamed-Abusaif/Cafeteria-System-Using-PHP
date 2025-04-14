@@ -1,0 +1,18 @@
+meta {
+  name: Add to cart
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{CAFETERIA_URL}}/controllers/cart.controller.php
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "user_id": 1,
+    "product_id": 2
+  }
+}

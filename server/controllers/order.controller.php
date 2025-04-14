@@ -62,6 +62,14 @@ class OrderController {
 
     $orders = Order::sort('created_at', 'DESC')->paginate($page, $limit);
     foreach ($orders['data'] as &$order) {
+      $user = User::find($order['user_id']);
+      $room = Room::find($order['room_id']);
+      $order['user'] = [
+        "name" => $user['name']
+      ];
+      $order['room'] = [
+        "name" => $room['name']
+      ];
       $order['products'] = $this->getOrderProducts($order['id']);
     }
 

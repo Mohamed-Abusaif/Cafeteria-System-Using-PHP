@@ -116,6 +116,15 @@ async function handleLogout() {
                 <i class="bi bi-person-bounding-box"></i>
               </router-link>
             </li>
+              <li>
+              <router-link
+                class="dropdown-item d-flex justify-content-between align-items-center"
+                to="/cart"
+              >
+                <span>Cart</span>
+                <i class="bi bi-cart-dash"></i>
+              </router-link>
+            </li>
             <li>
               <router-link
                 class="dropdown-item d-flex justify-content-between align-items-center"
