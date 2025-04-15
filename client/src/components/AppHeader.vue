@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 
@@ -12,6 +12,16 @@ const authStore = useAuthStore()
 
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value
+}
+
+// Close dropdown when clicking outside
+const closeDropdownOnClickOutside = (event) => {
+  const dropdown = document.getElementById('userDropdown')
+  const button = document.getElementById('userMenuButton')
+
+  if (showDropdown.value && dropdown && !dropdown.contains(event.target) && !button.contains(event.target)) {
+    showDropdown.value = false
+  }
 }
 
 onMounted(async () => {
@@ -39,6 +49,14 @@ onMounted(async () => {
 
   // Check if user is already logged in
   await authStore.checkAuth()
+
+  // Add click event listener for closing dropdown
+  document.addEventListener('click', closeDropdownOnClickOutside)
+})
+
+onBeforeUnmount(() => {
+  // Remove event listener when component is unmounted
+  document.removeEventListener('click', closeDropdownOnClickOutside)
 })
 
 async function handleLogout() {
@@ -97,13 +115,13 @@ const getUserInitials = () => {
           </div>
         </router-link>
 
-        <div class="dropdown">
+        <div class="dropdown-container">
           <button
             class="btn dropdown-toggle user-menu-btn"
             type="button"
-            id="userMenu"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
+            id="userMenuButton"
+            @click="toggleDropdown"
+            aria-expanded="showDropdown"
           >
             <div class="user-avatar" v-if="authStore.user">
               {{ getUserInitials() }}
@@ -111,7 +129,7 @@ const getUserInitials = () => {
             <i class="bi bi-person-circle me-1" v-else></i>
             <span class="user-name">{{ authStore.user ? authStore.user.name : 'Menu' }}</span>
           </button>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+          <ul id="userDropdown" class="dropdown-menu dropdown-menu-end" :class="{ show: showDropdown }" aria-labelledby="userMenuButton">
             <!-- Not logged in -->
             <li v-if="!authStore.isLoggedIn()">
               <router-link class="dropdown-item" to="/login">
@@ -214,6 +232,10 @@ const getUserInitials = () => {
   color: var(--dark-color);
 }
 
+.dropdown-container {
+  position: relative;
+}
+
 .user-menu-btn {
   display: flex;
   align-items: center;
@@ -260,6 +282,16 @@ const getUserInitials = () => {
   border-radius: 0.5rem;
   padding: 0.5rem;
   min-width: 200px;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  display: none;
+  z-index: 1000;
+  margin-top: 0.5rem;
+}
+
+.dropdown-menu.show {
+  display: block;
 }
 
 .dropdown-item {
