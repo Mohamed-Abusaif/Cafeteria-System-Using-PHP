@@ -118,6 +118,11 @@ class OrderController {
     if ($validator->fails()) {
       $this->apiResponse((object)[], $validator->firstError(), 400);
     }
+
+    $user = User::find($jsonData['user_id']);
+    if($user['role'] !== 'User'){
+      $this->apiResponse((object)[], 'User not found', 400);
+    }
     
     if(is_null($jsonData['Admin_id'])){
       $cart = Cart::where('user_id', '=', $jsonData['user_id'])->first();
