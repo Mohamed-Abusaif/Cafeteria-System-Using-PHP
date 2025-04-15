@@ -8,7 +8,7 @@
 
     <div v-else-if="error" class="alert alert-danger">Failed to load products: {{ error }}</div>
 
-    <div v-else-if="products.length === 0" class="text-center py-5">
+    <div v-else-if="!products || !hasProducts" class="text-center py-5">
       <p class="text-muted">No products found. Try adjusting your filters or add a new product.</p>
     </div>
 
@@ -26,7 +26,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in products" :key="product.id">
+          <tr v-for="product in productItems" :key="product.id">
             <td>{{ product.id }}</td>
             <td>
               <div class="position-relative image-container">
@@ -82,7 +82,6 @@
           <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
             <a
               class="page-link"
-              href="#"
               @click.prevent="$emit('page-change', pagination.currentPage - 1)"
             >
               <i class="bi bi-chevron-left"></i>
@@ -95,7 +94,7 @@
             class="page-item"
             :class="{ active: page === pagination.currentPage }"
           >
-            <a class="page-link" href="#" @click.prevent="$emit('page-change', page)">{{ page }}</a>
+            <a class="page-link" @click.prevent="$emit('page-change', page)">{{ page }}</a>
           </li>
 
           <li
@@ -104,7 +103,7 @@
           >
             <a
               class="page-link"
-              href="#"
+
               @click.prevent="$emit('page-change', pagination.currentPage + 1)"
             >
               <i class="bi bi-chevron-right"></i>
@@ -117,11 +116,11 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, computed, watch } from 'vue'
 
 const props = defineProps({
   products: {
-    type: Array,
+    type: [Array, Object],
     default: () => [],
   },
   categories: {
@@ -147,6 +146,23 @@ const props = defineProps({
 })
 
 defineEmits(['edit', 'delete', 'update-image', 'page-change'])
+
+// Watch for product data changes and log them
+watch(() => props.products, (newValue) => {
+  console.log('ProductTable received products:', newValue)
+}, { deep: true })
+
+// Check if products exist and have data
+const hasProducts = computed(() => {
+  console.log('Checking hasProducts with:', props.products)
+  return Array.isArray(props.products) && props.products.length > 0;
+});
+
+// Safely get product items - just return the products array directly
+const productItems = computed(() => {
+  console.log('Computing productItems from:', props.products)
+  return Array.isArray(props.products) ? props.products : [];
+});
 
 const getCategoryName = (categoryId) => {
   const category = props.categories.find((c) => c.id === categoryId)

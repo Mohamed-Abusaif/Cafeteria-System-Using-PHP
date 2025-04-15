@@ -19,9 +19,17 @@
           ></button>
         </div>
         <div class="modal-body">
-          <div v-if="error" class="alert alert-danger mb-3">{{ error }}</div>
+          <div v-if="error"
+            class="alert mb-3"
+            :class="{
+              'alert-danger': !error.includes('successfully'),
+              'alert-success': error.includes('successfully')
+            }"
+          >
+            {{ error }}
+          </div>
 
-          <form @submit.prevent="submitImage">
+          <form v-if="!error || !error.includes('successfully')" @submit.prevent="submitImage">
             <div class="mb-3">
               <label for="newImage" class="form-label">New Image</label>
               <input
@@ -46,8 +54,11 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            {{ error && error.includes('successfully') ? 'Close' : 'Cancel' }}
+          </button>
           <button
+            v-if="!error || !error.includes('successfully')"
             type="button"
             class="btn btn-primary"
             @click="submitImage"

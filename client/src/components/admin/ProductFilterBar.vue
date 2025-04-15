@@ -17,7 +17,11 @@
             <option v-for="category in categories" :key="category.id" :value="category.id">
               {{ category.name }}
             </option>
+            <option v-if="categories.length === 0" disabled>No categories available</option>
           </select>
+          <div v-if="categories.length === 0" class="form-text text-danger mt-1">
+            <small>No categories loaded. Please check your connection.</small>
+          </div>
         </div>
         <div class="col-md-3 mb-3 mb-md-0">
           <select class="form-select" v-model="filters.availability" @change="emitFilterChange">
@@ -37,7 +41,7 @@
 </template>
 
 <script setup>
-import { reactive, defineProps, defineEmits } from 'vue'
+import { reactive, defineProps, defineEmits, watch } from 'vue'
 
 const props = defineProps({
   categories: {
@@ -53,6 +57,11 @@ const filters = reactive({
   category_id: '',
   availability: '',
 })
+
+// Watch for categories changes and log them
+watch(() => props.categories, (newValue) => {
+  console.log('ProductFilterBar received categories:', newValue?.length || 0)
+}, { immediate: true })
 
 const emitFilterChange = () => {
   emit('filter', { ...filters })

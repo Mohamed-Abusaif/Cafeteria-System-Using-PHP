@@ -19,18 +19,35 @@
           ></button>
         </div>
         <div class="modal-body">
-          <div v-if="error" class="alert alert-danger mb-3">{{ error }}</div>
+          <div v-if="error"
+            class="alert mb-3"
+            :class="{
+              'alert-danger': !error.includes('successfully'),
+              'alert-success': error.includes('successfully')
+            }"
+          >
+            {{ error }}
+          </div>
 
-          <p>
+          <p v-if="!error || !error.includes('successfully')">
             Are you sure you want to delete the product:
-            <strong>{{ product?.name }}</strong
-            >?
+            <strong>{{ product?.name }}</strong>?
           </p>
-          <p class="text-danger"><small>This action cannot be undone.</small></p>
+          <p class="text-danger" v-if="!error || !error.includes('successfully')">
+            <small>This action cannot be undone.</small>
+          </p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-danger" @click="confirmDelete" :disabled="loading">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            {{ error && error.includes('successfully') ? 'Close' : 'Cancel' }}
+          </button>
+          <button
+            v-if="!error || !error.includes('successfully')"
+            type="button"
+            class="btn btn-danger"
+            @click="confirmDelete"
+            :disabled="loading"
+          >
             <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
             Delete Product
           </button>

@@ -51,6 +51,9 @@
             </option>
           </select>
           <div v-if="errors.category_id" class="invalid-feedback">{{ errors.category_id }}</div>
+          <div v-if="categories.length === 0" class="text-danger mt-1">
+            <small>No categories available. Please add a category first.</small>
+          </div>
         </div>
 
         <div class="mb-3">
@@ -159,6 +162,16 @@ watch(
   },
   { immediate: true },
 )
+
+// Monitor categories
+watch(() => props.categories, (newValue) => {
+  console.log('ProductForm received categories:', newValue?.length || 0)
+
+  // If we're editing but have no category selected, try to select from existing categories
+  if (props.editMode && !form.category_id && newValue && newValue.length > 0) {
+    form.category_id = props.product.category_id || newValue[0].id
+  }
+}, { immediate: true })
 
 const handleImageChange = (event) => {
   const file = event.target.files[0]
