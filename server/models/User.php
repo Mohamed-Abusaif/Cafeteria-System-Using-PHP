@@ -9,7 +9,7 @@ class User extends Model {
     $user = parent::find($id);
     if (!$user) return null;
     unset($user['created_at'], $user['updated_at'], $user['deleted_at'], $user['reset_token']);
-    $user['room_id'] = Room::find($user['room_id']) ?: null;
+    $user['room'] = Room::find($user['room_id']) ?: null;
     return $user;
   }
 
@@ -18,7 +18,7 @@ class User extends Model {
 		$paginated = parent::paginate($page, $limit);
 		foreach ($paginated['data'] as &$user) {
 			unset($user['password'], $user['public_id'], $user['created_at'], $user['updated_at'], $user['deleted_at'], $user['reset_token']);
-			$user['room_id'] = Room::find($user['room_id']) ?: null;
+			$user['room'] = Room::find($user['room_id']) ?: null;
 		}
 		return $paginated;
 	}
