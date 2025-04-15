@@ -34,7 +34,7 @@ class UserController {
   #[NoReturn] private function getUsers(): void {
     $loggedInUser = $this->getLoggedInUser();
     if($loggedInUser['role'] !== 'Admin') {
-      $this->apiResponse(null, 'Unauthorized', 401);
+      $this->apiResponse((object)[], 'Unauthorized', 401);
     }
 	  $page = $_GET['page'] ?? 1;
 		$limit = $_GET['limit'] ?? 10;
@@ -61,9 +61,8 @@ class UserController {
 
   #[NoReturn] private function createUser(): void {
     $loggedInUser = $this->getLoggedInUser();
-//      print_r($loggedInUser);
     if($loggedInUser['role'] !== 'Admin') {
-      $this->apiResponse(null, 'Unauthorized', 401);
+      $this->apiResponse((object)[], 'Unauthorized', 401);
     }
     $jsonData = json_decode(file_get_contents("php://input"), true);
     $validator = Validator::make($jsonData, [
@@ -102,7 +101,7 @@ class UserController {
   #[NoReturn] private function updateUser($id): void {
     $loggedInUser = $this->getLoggedInUser();
     if($loggedInUser['id'] !== $id && $loggedInUser['role'] !== 'Admin') {
-      $this->apiResponse(null, 'Unauthorized', 401);
+      $this->apiResponse((object)[], 'Unauthorized', 401);
     }
     $updatedUser =User::find($id);
     if (!$updatedUser) {
@@ -140,7 +139,7 @@ class UserController {
   #[NoReturn] private function deleteUser($id): void {
     $loggedInUser = $this->getLoggedInUser();
     if($loggedInUser['role'] !== 'Admin') {
-      $this->apiResponse(null, 'Unauthorized', 401);
+      $this->apiResponse((object)[], 'Unauthorized', 401);
     }
     $user = User::find($id);
     if (!$user) {

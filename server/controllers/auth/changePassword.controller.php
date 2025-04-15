@@ -19,10 +19,11 @@ class ChangePassword {
 				$this->apiResponse((object)[], 'Method Not Allowed', 405);
 		}
 	}
+
 	#[NoReturn] private function changePassword($id): void {
     $loggedInUser = $this->getLoggedInUser();
     if($loggedInUser['id'] !== $id ) {
-      $this->apiResponse(null, 'Unauthorized', 401);
+      $this->apiResponse((object)[], 'Unauthorized', 401);
     }
     $jsonData = json_decode(file_get_contents("php://input"), true);
 		$validator = Validator::make($jsonData, [
@@ -49,4 +50,5 @@ class ChangePassword {
 		$this->apiResponse($user, 'ok', 200);
 	}
 }
+
 new ChangePassword();

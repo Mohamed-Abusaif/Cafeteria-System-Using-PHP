@@ -43,6 +43,11 @@ class CategoryController {
 	}
 
 	#[NoReturn] private function createCategory(): void {
+		$loggedInUser = $this->getLoggedInUser();
+		if ($loggedInUser['role'] !== 'Admin') {
+			$this->apiResponse((object)[], 'Unauthorized', 401);
+		}
+
 		$jsonData = json_decode(file_get_contents("php://input"), true);
 		$validator = Validator::make($jsonData, [
 			'name' => 'required|string|unique:categories',
@@ -58,6 +63,11 @@ class CategoryController {
 	}
 
 	#[NoReturn] private function updateCategory($id): void {
+		$loggedInUser = $this->getLoggedInUser();
+		if ($loggedInUser['role'] !== 'Admin') {
+			$this->apiResponse((object)[], 'Unauthorized', 401);
+		}
+
 		$jsonData = json_decode(file_get_contents("php://input"), true);
 		$validator = Validator::make($jsonData, [
 			'name' => 'nullable|string|unique:categories,name,' . $id,
@@ -71,6 +81,10 @@ class CategoryController {
 	}
 
 	#[NoReturn] private function deleteCategory($id): void {
+		$loggedInUser = $this->getLoggedInUser();
+		if ($loggedInUser['role'] !== 'Admin') {
+			$this->apiResponse((object)[], 'Unauthorized', 401);
+		}
 
 		//if the category has related products return error 
 		$relatedProducts = Product::where('category_id', '=', $id)->count();
@@ -84,4 +98,3 @@ class CategoryController {
 }
 
 new CategoryController();
-?>

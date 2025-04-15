@@ -7,10 +7,7 @@ class User extends Model {
 
   public static function find($id): false|array|null {
     $user = parent::find($id);
-
-    if (!$user) {
-      return null;
-    }
+    if (!$user) return null;
     unset($user['created_at'], $user['updated_at'], $user['deleted_at'], $user['reset_token']);
     $user['room_id'] = Room::find($user['room_id']) ?: null;
     return $user;

@@ -49,10 +49,6 @@ class OrderController {
       Order::where('user_id', '=', $_GET['user_id']);
     }
 
-    if (isset($_GET['deleted_at'])) {
-      Order::where('deleted_at', 'is', null);
-    }
-
     if (isset($_GET['status'])) {
       $validStatuses = ['processing', 'delivered', 'done', 'canceled'];
       if (in_array($_GET['status'], $validStatuses)) {
@@ -88,6 +84,9 @@ class OrderController {
 
   private function getOrderProducts($orderId): array {
     $orderProducts = OrderProduct::where('order_id', '=', $orderId)->get();
+	  if (!is_array($orderProducts)) {
+		  return [];
+	  }
 
     $products = [];
     foreach ($orderProducts as $orderProduct) {
@@ -107,6 +106,11 @@ class OrderController {
   }
 
   #[NoReturn] private function createOrder(): void {
+	  $loggedInUser = $this->getLoggedInUser();
+	  if (!$loggedInUser) {
+		  $this->apiResponse((object)[], 'Unauthorized', 401);
+	  }
+
     $jsonData = json_decode(file_get_contents("php://input"), true);
     $validator = Validator::make($jsonData, [
       'Admin_id' => 'nullable|numeric|exists:users',
@@ -114,7 +118,6 @@ class OrderController {
       'room_id' => 'required|numeric|exists:rooms',
       'notes' => 'nullable|string',
     ]);
-
     if ($validator->fails()) {
       $this->apiResponse((object)[], $validator->firstError(), 400);
     }
@@ -176,12 +179,15 @@ class OrderController {
     foreach ($cartProducts as $cartProduct) {
       CartProduct::delete($cartProduct['id']);
     }
-
-    $order['products'] = $this->getOrderProducts($order['id']);
-    $this->apiResponse($order, 'Order created successfully', 201);
+		$this->apiResponse($order, 'Order created successfully', 201);
   }
 
   #[NoReturn] private function updateOrder($id): void {
+	  $loggedInUser = $this->getLoggedInUser();
+	  if (!$loggedInUser) {
+		  $this->apiResponse((object)[], 'Unauthorized', 401);
+	  }
+
     $order = Order::find($id);
     if (!$order) {
       $this->apiResponse((object)[], 'Order not found', 404);
@@ -197,7 +203,6 @@ class OrderController {
     $validator = Validator::make($jsonData, [
       'status' => 'required|string|in:processing,delivered,done',
     ]);
-
     if ($validator->fails()) {
       $this->apiResponse((object)[], $validator->firstError(), 400);
     }
@@ -226,12 +231,15 @@ class OrderController {
     $updatedOrder = Order::update($id, [
       'status' => $newStatus,
     ]);
-
-    $updatedOrder['products'] = $this->getOrderProducts($id);
-    $this->apiResponse($updatedOrder, "Order status updated from '$currentStatus' to '$newStatus'", 200);
+		$this->apiResponse($updatedOrder, "Order status updated from '$currentStatus' to '$newStatus'", 200);
   }
 
   #[NoReturn] private function cancelOrder($id): void {
+	  $loggedInUser = $this->getLoggedInUser();
+	  if (!$loggedInUser) {
+		  $this->apiResponse((object)[], 'Unauthorized', 401);
+	  }
+
     $order = Order::find($id);
     if (!$order) {
       $this->apiResponse((object)[], 'Order not found', 404);
@@ -243,9 +251,7 @@ class OrderController {
 
     $updatedOrder = Order::update($id, [
       'status' => 'canceled',
-      'deleted_at' => date('Y-m-d H:i:s')
     ]);
-
     $this->apiResponse($updatedOrder, 'Order canceled successfully', 200);
   }
 }

@@ -32,7 +32,6 @@ trait HelperTrait {
 
 	public function getIdFromUrl(): ?int {
 		$url = $_SERVER['REQUEST_URI'];
-
 		$urlParts = explode('/', $url);
 		return (int)end($urlParts);
 	}
@@ -47,7 +46,7 @@ trait HelperTrait {
 		$cloudinary = new Cloudinary($config);
 		$cloudinary->uploadApi()->destroy($publicId, options: ['invalidate' => true]);
 	}
-  public function getLoggedInUser(): mixed {
+  public function getLoggedInUser(): array|null|false {
     $env = parse_ini_file(__DIR__ . '/../.env');
     $secretKey = $env['JWT_SECRET'];
     if (!isset($_COOKIE['token'])) {

@@ -18,6 +18,10 @@ class Logout {
   }
 
   #[NoReturn] private function logout(): void {
+	  $loggedInUser = $this->getLoggedInUser();
+	  if (!$loggedInUser) {
+		  $this->apiResponse((object)[], 'Unauthorized', 401);
+	  }
 
     if (isset($_COOKIE['token'])) {
       setcookie("token", "", time() - 3600, "/", "", false, true);

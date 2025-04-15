@@ -65,6 +65,11 @@ class ProductController {
 	}
 
 	#[NoReturn] private function createProduct(): void {
+		$loggedInUser = $this->getLoggedInUser();
+		if ($loggedInUser['role'] !== 'Admin') {
+			$this->apiResponse((object)[], 'Unauthorized', 401);
+		}
+
 		$validator = Validator::make($_POST, [
 			'name' => 'required|string',
 			'price' => 'required|numeric',
@@ -102,6 +107,11 @@ class ProductController {
 	}
 
 	#[NoReturn] private function updateProduct($id): void {
+		$loggedInUser = $this->getLoggedInUser();
+		if ($loggedInUser['role'] !== 'Admin') {
+			$this->apiResponse((object)[], 'Unauthorized', 401);
+		}
+
 		$jsonData = json_decode(file_get_contents("php://input"), true);
 		$allowedFields = ['name', 'price', 'category_id', 'availability'];
 		$jsonData = array_intersect_key($jsonData, array_flip($allowedFields));
@@ -120,6 +130,11 @@ class ProductController {
 	}
 
 	#[NoReturn] private function deleteProduct($id): void {
+		$loggedInUser = $this->getLoggedInUser();
+		if ($loggedInUser['role'] !== 'Admin') {
+			$this->apiResponse((object)[], 'Unauthorized', 401);
+		}
+
 		$product = Product::find($id);
 		if (!$product) {
 			$this->apiResponse((object)[], 'Product not found', 404);
