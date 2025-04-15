@@ -23,61 +23,61 @@ const router = createRouter({
       path: '/profile',
       name: 'Profile',
       component: () => import('../views/ProfilePage.vue'),
-      beforeEnter: authGuard
+      beforeEnter: authGuard,
     },
     {
       path: '/cart',
       name: 'Cart',
       component: () => import('../views/CartPage.vue'),
-      beforeEnter: authGuard
+      beforeEnter: authGuard,
     },
     {
       path: '/orders',
       name: 'Orders',
       component: () => import('../views/OrderPage.vue'),
-      beforeEnter: userGuard
+      beforeEnter: userGuard,
     },
     {
       path: '/dashboard',
       name: 'Dashboard',
       component: () => import('../views/admin/DashBoard.vue'),
-      beforeEnter: adminGuard
+      beforeEnter: adminGuard,
     },
     {
       path: '/dashboard/users',
       name: 'User',
       component: () => import('../views/admin/UserPage.vue'),
-      beforeEnter: adminGuard
+      beforeEnter: adminGuard,
     },
     {
       path: '/dashboard/categories',
       name: 'Category',
       component: () => import('../views/admin/CategoryPage.vue'),
-      beforeEnter: adminGuard
+      beforeEnter: adminGuard,
     },
     {
       path: '/dashboard/rooms',
       name: 'Room',
       component: () => import('../views/admin/RoomPage.vue'),
-      beforeEnter: adminGuard
+      beforeEnter: adminGuard,
     },
     {
       path: '/dashboard/products',
       name: 'Product',
       component: () => import('../views/admin/ProductPage.vue'),
-      beforeEnter: adminGuard
+      beforeEnter: adminGuard,
     },
     {
       path: '/dashboard/orders',
       name: 'Order',
       component: () => import('../views/admin/OrderPage.vue'),
-      beforeEnter: adminGuard
+      beforeEnter: adminGuard,
     },
     {
       path: '/dashboard/checks',
       name: 'Check',
       component: () => import('../views/admin/CheckPage.vue'),
-      beforeEnter: adminGuard
+      beforeEnter: adminGuard,
     },
     {
       path: '/:pathMatch(.*)*',
@@ -85,6 +85,18 @@ const router = createRouter({
       component: () => import('../views/NotFound.vue'),
     },
   ],
+  scrollBehavior(to, from, savedPosition) {
+    // If the user is using browser navigation (back/forward), restore their position
+    if (savedPosition) {
+      return savedPosition
+    }
+
+    // For all other navigation, scroll to top with smooth behavior
+    return {
+      top: 0,
+      behavior: 'smooth',
+    }
+  },
 })
 
 export default router

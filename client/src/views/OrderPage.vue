@@ -41,20 +41,25 @@
           </div>
 
           <!-- Empty Orders State -->
-          <div v-if="!initialLoading && !error && ordersIsEmpty" class="text-center py-5 empty-orders">
+          <div
+            v-if="!initialLoading && !error && ordersIsEmpty"
+            class="text-center py-5 empty-orders"
+          >
             <font-awesome-icon :icon="['fas', 'shopping-basket']" class="empty-icon mb-3" />
             <h2 class="empty-title">No orders found</h2>
-            <p class="text-muted empty-text">
-              You haven't placed any orders yet.
-            </p>
-            <router-link to="/" class="btn btn-primary browse-btn mt-3">Browse Products</router-link>
+            <p class="text-muted empty-text">You haven't placed any orders yet.</p>
+            <router-link to="/" class="btn btn-primary browse-btn mt-3"
+              >Browse Products</router-link
+            >
           </div>
 
           <!-- Orders Content -->
           <div v-if="!initialLoading && !error && !ordersIsEmpty">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h1 class="orders-title">My Orders</h1>
-              <span class="orders-count">{{ orders.length }} {{ orders.length === 1 ? 'order' : 'orders' }}</span>
+              <span class="orders-count"
+                >{{ orders.length }} {{ orders.length === 1 ? 'order' : 'orders' }}</span
+              >
             </div>
 
             <!-- Filter Section -->
@@ -62,21 +67,11 @@
               <div class="row g-3">
                 <div class="col-md-4">
                   <label for="startDate" class="form-label">From Date</label>
-                  <input
-                    type="date"
-                    class="form-control"
-                    id="startDate"
-                    v-model="startDate"
-                  />
+                  <input type="date" class="form-control" id="startDate" v-model="startDate" />
                 </div>
                 <div class="col-md-4">
                   <label for="endDate" class="form-label">To Date</label>
-                  <input
-                    type="date"
-                    class="form-control"
-                    id="endDate"
-                    v-model="endDate"
-                  />
+                  <input type="date" class="form-control" id="endDate" v-model="endDate" />
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
                   <div class="d-flex gap-2">
@@ -112,26 +107,30 @@
                     <div class="table-responsive">
                       <table class="table table-sm">
                         <thead class="table-light">
-                        <tr>
-                          <th>Product</th>
-                          <th class="text-center">Qty</th>
-                          <th class="text-right">Price</th>
-                          <th class="text-right">Subtotal</th>
-                        </tr>
+                          <tr>
+                            <th>Product</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-right">Price</th>
+                            <th class="text-right">Subtotal</th>
+                          </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="product in order.products" :key="product.id">
-                          <td>{{ product.product_name }}</td>
-                          <td class="text-center">{{ product.quantity }}</td>
-                          <td class="text-right">${{ product.price }}</td>
-                          <td class="text-right">${{ (product.price * product.quantity).toFixed(2) }}</td>
-                        </tr>
+                          <tr v-for="product in order.products" :key="product.id">
+                            <td>{{ product.product_name }}</td>
+                            <td class="text-center">{{ product.quantity }}</td>
+                            <td class="text-right">${{ product.price }}</td>
+                            <td class="text-right">
+                              ${{ (product.price * product.quantity).toFixed(2) }}
+                            </td>
+                          </tr>
                         </tbody>
                         <tfoot>
-                        <tr>
-                          <td colspan="3" class="text-right"><strong>Total:</strong></td>
-                          <td class="text-right"><strong>${{ order.total_price }}</strong></td>
-                        </tr>
+                          <tr>
+                            <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                            <td class="text-right">
+                              <strong>${{ order.total_price }}</strong>
+                            </td>
+                          </tr>
                         </tfoot>
                       </table>
                     </div>
@@ -141,7 +140,9 @@
                     <div class="order-info">
                       <div class="info-row">
                         <span class="info-label">Room:</span>
-                        <span class="info-value">{{ order.room ? order.room.name : `Room #${order.room_id}` }}</span>
+                        <span class="info-value">{{
+                          order.room ? order.room.name : `Room #${order.room_id}`
+                        }}</span>
                       </div>
                       <div class="info-row">
                         <span class="info-label">Notes:</span>
@@ -230,14 +231,16 @@
             ></button>
           </div>
           <div class="modal-body">
-            <p>
-              Are you sure you want to cancel Order #{{ orderToCancel?.id }}?
-            </p>
+            <p>Are you sure you want to cancel Order #{{ orderToCancel?.id }}?</p>
             <p class="text-danger"><small>This action cannot be undone.</small></p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep it</button>
-            <button type="button" class="btn btn-danger" @click="cancelOrder">Yes, Cancel Order</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              No, Keep it
+            </button>
+            <button type="button" class="btn btn-danger" @click="cancelOrder">
+              Yes, Cancel Order
+            </button>
           </div>
         </div>
       </div>
@@ -256,18 +259,11 @@ import {
   faShoppingBasket,
   faTimesCircle,
   faSearch,
-  faTimes
+  faTimes,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(
-  faChevronLeft,
-  faExclamationCircle,
-  faShoppingBasket,
-  faTimesCircle,
-  faSearch,
-  faTimes
-)
+library.add(faChevronLeft, faExclamationCircle, faShoppingBasket, faTimesCircle, faSearch, faTimes)
 
 const router = useRouter()
 const initialLoading = ref(true)
@@ -373,16 +369,16 @@ function formatDate(dateString) {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   }).format(date)
 }
 
 function getStatusBadgeClass(status) {
   const statusClasses = {
-    'processing': 'bg-warning',
-    'delivered': 'bg-info',
-    'done': 'bg-success',
-    'canceled': 'bg-danger'
+    processing: 'bg-warning',
+    delivered: 'bg-info',
+    done: 'bg-success',
+    canceled: 'bg-danger',
   }
   return statusClasses[status] || 'bg-secondary'
 }
@@ -407,7 +403,7 @@ async function cancelOrder() {
       {
         method: 'DELETE',
         credentials: 'include',
-      }
+      },
     )
 
     const result = await response.json()
@@ -469,7 +465,7 @@ onMounted(async () => {
 
 <style scoped>
 .orders-container {
-  background-color: #f8f9fa;
+  /* background-color: #f8f9fa; */
   min-height: 70vh;
 }
 
@@ -559,20 +555,16 @@ onMounted(async () => {
 }
 
 .badge.bg-warning {
-  background-color: #ffc107 !important;
   color: #212529;
 }
 
 .badge.bg-info {
-  background-color: #0dcaf0 !important;
 }
 
 .badge.bg-success {
-  background-color: #198754 !important;
 }
 
 .badge.bg-danger {
-  background-color: #dc3545 !important;
 }
 
 .order-body {

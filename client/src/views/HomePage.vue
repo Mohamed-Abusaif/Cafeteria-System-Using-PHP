@@ -274,7 +274,7 @@ function goToLastPage() {
 </script>
 
 <template>
-  <div class="homepage">
+  <div class="page-content">
     <!-- Toast Notification -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1050">
       <div
@@ -681,7 +681,7 @@ function goToLastPage() {
 /* Hero Section */
 .hero {
   padding: 80px 0;
-  background: linear-gradient(to right, #f8f9fa 0%, #f1f1f1 100%);
+  /* background: linear-gradient(to right, #f8f9fa 0%, #f1f1f1 100%); */
 }
 
 .hero-text h1 {

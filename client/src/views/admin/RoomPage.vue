@@ -167,24 +167,27 @@ async function confirmDelete() {
 </script>
 
 <template>
-  <div class="full-width-container mt-2">
-    <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-3 px-3">
-      <h2 class="mb-0">Rooms Details</h2>
-      <!-- Button now calls openAddModal -->
-      <button type="button" class="btn btn-primary" @click="openAddModal">
-        <i class="bi bi-plus-circle me-1"></i> Add Room
+  <div class="page-content">
+    <!-- Header with Add Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Room Management</h2>
+      <button @click="openAddModal" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Add New Room
       </button>
     </div>
 
-    <!-- Loading and Error Display -->
-    <div v-if="isLoading" class="text-center p-5">
+    <!-- Loading indicator -->
+    <div v-if="isLoading" class="text-center my-5">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
+      <p class="mt-2">Loading rooms...</p>
     </div>
-    <div v-else-if="error" class="alert alert-danger mx-3" role="alert">
-      Failed to load rooms: {{ error }}
+
+    <!-- Error message -->
+    <div v-else-if="error" class="alert alert-danger" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      {{ error }}
     </div>
 
     <!-- Table Section -->

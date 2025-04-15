@@ -57,7 +57,7 @@
               Looks like you haven't added any products to your cart yet.
             </p>
             <router-link to="/" class="btn btn-primary browse-btn mt-3"
-            >Browse Products</router-link
+              >Browse Products</router-link
             >
           </div>
 
@@ -206,7 +206,9 @@
           <!-- Checkout Form -->
           <div class="checkout-form">
             <div class="form-group mb-3">
-              <label for="room-select" class="form-label">Delivery Room <span class="required">*</span></label>
+              <label for="room-select" class="form-label"
+                >Delivery Room <span class="required">*</span></label
+              >
               <div v-if="roomsLoading" class="text-center py-2">
                 <div class="spinner-border spinner-border-sm" role="status">
                   <span class="sr-only">Loading rooms...</span>
@@ -256,7 +258,12 @@
           <button
             class="btn btn-primary confirm-btn"
             @click="submitOrder"
-            :disabled="checkoutLoading || !checkoutForm.roomId || roomsLoading || (isAdmin && !checkoutForm.targetUserId)"
+            :disabled="
+              checkoutLoading ||
+              !checkoutForm.roomId ||
+              roomsLoading ||
+              (isAdmin && !checkoutForm.targetUserId)
+            "
           >
             <span v-if="checkoutLoading">
               <div class="spinner-border spinner-border-sm" role="status">
@@ -301,7 +308,7 @@ library.add(
   faTrashAlt,
   faLock,
   faCheckCircle,
-  faUserShield
+  faUserShield,
 )
 
 const router = useRouter()
@@ -317,7 +324,7 @@ const showCheckoutModal = ref(false)
 const checkoutForm = ref({
   roomId: '',
   notes: '',
-  targetUserId: ''
+  targetUserId: '',
 })
 const checkoutLoading = ref(false)
 const rooms = ref([])
@@ -378,7 +385,7 @@ const fetchCart = async () => {
       {
         method: 'GET',
         credentials: 'include',
-      }
+      },
     )
 
     if (!response.ok) {
@@ -476,7 +483,9 @@ const updateQuantity = async (item, newQuantity) => {
     item.quantity = newQuantity
 
     successMessage.value = 'Quantity updated successfully'
-    setTimeout(() => { successMessage.value = '' }, 3000) // Clear after 3 seconds
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000) // Clear after 3 seconds
   } catch (err) {
     error.value = err.message || 'Failed to update item quantity'
   } finally {
@@ -522,7 +531,9 @@ const removeItem = async (item) => {
     cart.value = cart.value.filter((cartItem) => cartItem.product_id !== item.product_id)
 
     successMessage.value = 'Item removed from cart'
-    setTimeout(() => { successMessage.value = '' }, 3000) // Clear after 3 seconds
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000) // Clear after 3 seconds
   } catch (err) {
     error.value = err.message || 'Failed to remove item'
   } finally {
@@ -543,7 +554,7 @@ const proceedToCheckout = async () => {
   checkoutForm.value = {
     roomId: '',
     notes: '',
-    targetUserId: isAdmin.value ? '' : currentUserId.value
+    targetUserId: isAdmin.value ? '' : currentUserId.value,
   }
 
   error.value = ''
@@ -568,9 +579,10 @@ const submitOrder = async () => {
 
   checkoutLoading.value = true
   try {
-    const userId = isAdmin.value && checkoutForm.value.targetUserId
-      ? checkoutForm.value.targetUserId
-      : await getUserId()
+    const userId =
+      isAdmin.value && checkoutForm.value.targetUserId
+        ? checkoutForm.value.targetUserId
+        : await getUserId()
 
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/controllers/order.controller.php`,
@@ -586,7 +598,7 @@ const submitOrder = async () => {
           room_id: parseInt(checkoutForm.value.roomId, 10),
           notes: checkoutForm.value.notes || null,
         }),
-      }
+      },
     )
 
     if (!response.ok) {
@@ -612,7 +624,6 @@ const submitOrder = async () => {
         router.push('/orders')
       }, 2000)
     }
-
   } catch (err) {
     error.value = err.message || 'Failed to create order'
   } finally {
@@ -633,7 +644,6 @@ onMounted(async () => {
     // If successful (no error thrown), fetch the cart
     fetchCart()
     fetchRooms()
-
   } catch (err) {
     // User is not authenticated, redirect to home page
     router.push('/')
@@ -647,19 +657,16 @@ onMounted(async () => {
 
 <style scoped>
 .cart-container {
-  background-color: #f8f9fa;
-  min-height: 70vh;
+  min-height: calc(100vh - 100px);
 }
 
 .back-link a {
-  color: #495057;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
+  color: #6c757d;
+  transition: all 0.2s ease;
 }
 
 .back-link a:hover {
-  color: #0d6efd;
+  color: #343a40;
 }
 
 .spinner-loader {
@@ -671,64 +678,70 @@ onMounted(async () => {
   color: #6c757d;
 }
 
+/* Operation Loading Overlay */
 .operation-loading-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
   z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.operation-spinner {
+  padding: 2rem;
+  border-radius: 8px;
 }
 
 .empty-icon {
   font-size: 3rem;
-  color: #adb5bd;
+  color: #6c757d;
 }
 
 .empty-title {
-  color: #343a40;
-  margin-bottom: 1rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
 }
 
 .empty-text {
-  font-size: 1.1rem;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .cart-title {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 600;
+  margin-bottom: 0;
 }
 
 .cart-count {
   color: #6c757d;
-  font-size: 1rem;
+  font-weight: 500;
 }
 
 .divider {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  border-color: #dee2e6;
+  border-width: 1px;
+  opacity: 0.1;
 }
 
 .cart-item {
   display: flex;
-  padding: 1rem 0;
+  padding: 1.5rem 0;
 }
 
 .item-image {
   width: 120px;
-  margin-right: 1rem;
+  margin-right: 1.5rem;
 }
 
 .product-image {
   width: 100%;
-  height: auto;
-  border-radius: 4px;
+  height: 100px;
   object-fit: cover;
+  border-radius: 8px;
 }
 
 .item-details {
@@ -740,33 +753,40 @@ onMounted(async () => {
 
 .item-title h5 {
   margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .quantity-control {
   display: flex;
   align-items: center;
+  margin-top: 1rem;
 }
 
 .quantity-btn {
-  background-color: #f8f9fa;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
-.quantity-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.quantity-btn:hover {
+  border-color: #adb5bd;
+}
+
+.quantity-btn.decrease {
+  margin-right: 0.75rem;
+}
+
+.quantity-btn.increase {
+  margin-left: 0.75rem;
 }
 
 .quantity-text {
-  margin: 0 0.75rem;
+  font-weight: 600;
   min-width: 2rem;
   text-align: center;
 }
@@ -774,42 +794,35 @@ onMounted(async () => {
 .item-actions {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: flex-end;
+  justify-content: space-between;
 }
 
 .remove-btn {
-  background: none;
   border: none;
-  color: #dc3545;
-  cursor: pointer;
-  padding: 0.25rem;
+  color: #6c757d;
+  transition: all 0.2s ease;
 }
 
 .remove-btn:hover {
-  color: #c82333;
-}
-
-.remove-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  color: #dc3545;
 }
 
 .item-price {
   font-weight: 600;
   font-size: 1.1rem;
+  margin-top: 2rem;
 }
 
 .item-divider {
   margin: 0;
-  border-color: #e9ecef;
+  opacity: 0.1;
 }
 
 .summary-card {
-  background-color: white;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: 1px solid #dee2e6;
 }
 
 .summary-header h2 {
@@ -819,7 +832,7 @@ onMounted(async () => {
 }
 
 .summary-content {
-  padding: 1rem 0;
+  margin: 1rem 0 1.5rem;
 }
 
 .summary-row {
@@ -838,62 +851,39 @@ onMounted(async () => {
 
 .checkout-btn {
   width: 100%;
-  background-color: #0d6efd;
-  color: white;
-  border: none;
+  padding: 0.75rem 1rem;
   border-radius: 4px;
-  padding: 0.75rem;
+  border: none;
+  color: white;
   font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .checkout-btn:hover {
-  background-color: #0b5ed7;
+  transform: translateY(-2px);
 }
 
 .checkout-btn:disabled {
-  background-color: #6c757d;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* Custom alert styles with animation */
 .custom-alert {
-  position: relative;
+  display: flex;
+  align-items: center;
   padding: 1rem;
-  border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   margin-bottom: 1.5rem;
-  animation: fadeIn 0.3s ease-in-out;
+  border-radius: 8px;
+  border: none;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.alert-success {
-  background-color: #d4edda;
-  border-color: #c3e6cb;
-  color: #155724;
-}
-
-.close {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+.custom-alert .close {
+  margin-left: auto;
   background: none;
   border: none;
-  cursor: pointer;
   font-size: 1.25rem;
-  color: inherit;
-  opacity: 0.7;
-}
-
-.close:hover {
-  opacity: 1;
+  line-height: 1;
 }
 
 /* Add proper styles for sr-only to hide text visually but keep it for screen readers */
@@ -918,35 +908,25 @@ onMounted(async () => {
   margin-left: 0.5rem;
 }
 
-/* Checkout Modal Styles */
+/* Checkout Modal */
 .checkout-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1060;
-  animation: fadeIn 0.2s ease-out;
+  justify-content: center;
 }
 
 .checkout-modal {
-  background-color: white;
-  border-radius: 8px;
   width: 90%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  border-radius: 8px;
 }
 
 .checkout-modal-header {
@@ -958,18 +938,22 @@ onMounted(async () => {
 }
 
 .checkout-modal-header h2 {
-  margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
+  margin: 0;
 }
 
 .close-modal-btn {
   background: none;
   border: none;
   font-size: 1.5rem;
-  padding: 0;
-  cursor: pointer;
-  color: #6c757d;
+  line-height: 1;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.close-modal-btn:hover {
+  opacity: 0.75;
 }
 
 .checkout-modal-body {
@@ -977,17 +961,17 @@ onMounted(async () => {
 }
 
 .checkout-error {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .checkout-summary {
-  background-color: #f8f9fa;
-  border-radius: 6px;
-  padding: 1rem;
+  border-radius: 8px;
+  padding: 1.25rem;
+  border: 1px solid #dee2e6;
 }
 
 .checkout-summary h3 {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
 }
@@ -1067,35 +1051,20 @@ textarea.form-control {
 .cancel-btn {
   margin-right: 0.75rem;
   padding: 0.5rem 1.25rem;
-  background-color: #6c757d;
   color: white;
   border: none;
   border-radius: 4px;
   font-weight: 500;
 }
 
-.cancel-btn:hover {
-  background-color: #5a6268;
-}
-
 .confirm-btn {
   padding: 0.5rem 1.25rem;
-  background-color: #0d6efd;
   color: white;
   border: none;
   border-radius: 4px;
   font-weight: 500;
   display: flex;
   align-items: center;
-}
-
-.confirm-btn:hover {
-  background-color: #0b5ed7;
-}
-
-.confirm-btn:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
 }
 
 /* Responsive styles */
@@ -1203,5 +1172,4 @@ textarea.form-control {
   outline: 2px solid #86b7fe;
   outline-offset: 2px;
 }
-
 </style>

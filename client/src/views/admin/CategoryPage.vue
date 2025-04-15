@@ -126,7 +126,9 @@ async function saveOrUpdateCategory() {
       }
       await fetchCategories()
     } else {
-      throw new Error(result.message || `Failed to ${isEditing.value ? 'update' : 'save'} category.`)
+      throw new Error(
+        result.message || `Failed to ${isEditing.value ? 'update' : 'save'} category.`,
+      )
     }
   } catch (err) {
     alert(`Error ${isEditing.value ? 'updating' : 'saving'} category: ${err.message}`)
@@ -163,9 +165,9 @@ async function confirmDelete() {
 </script>
 
 <template>
-  <div class="full-width-container mt-2">
+  <div class="category-container page-content">
     <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-3 px-3">
+    <div class="d-flex justify-content-between align-items-center mb-3 pt-2">
       <h2 class="mb-0">Categories Details</h2>
       <!-- Button now calls openAddModal -->
       <button type="button" class="btn btn-primary" @click="openAddModal">
@@ -179,13 +181,15 @@ async function confirmDelete() {
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
-    <div v-else-if="error" class="alert alert-danger mx-3" role="alert">
+    <div v-else-if="error" class="alert alert-danger" role="alert">
       Failed to load categories: {{ error }}
     </div>
 
     <!-- Table Section -->
-    <div v-else class="full-width-table px-3">
-      <div v-if="!categories || categories.length === 0" class="alert alert-info mx-3">No categories found.</div>
+    <div v-else class="table-responsive">
+      <div v-if="!categories || categories.length === 0" class="alert alert-info">
+        No categories found.
+      </div>
       <table v-else class="table table-hover mb-0">
         <thead class="table-light">
           <tr>
@@ -207,7 +211,11 @@ async function confirmDelete() {
                 >
                   <i class="bi bi-pencil-square"></i> Update
                 </button>
-                <button type="button" class="btn btn-sm btn-danger" @click="openDeleteModal(category)">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger"
+                  @click="openDeleteModal(category)"
+                >
                   <i class="bi bi-trash"></i> Delete
                 </button>
               </div>
@@ -295,38 +303,17 @@ async function confirmDelete() {
 </template>
 
 <style scoped>
-.full-width-container {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
+.category-container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
 }
 
-.full-width-table {
+.table-responsive {
   width: 100%;
   overflow-x: auto;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  background-color: white;
-  margin: 0 auto;
 }
 
-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-thead {
-  background-color: #f8f9fa;
-}
-
-th,
-td {
-  padding: 12px 15px;
-}
-
-.table-hover tbody tr:hover {
-  background-color: rgba(0, 123, 255, 0.05);
-}
+/* Add any additional styling here */
 </style>

@@ -1,0 +1,69 @@
+:root {
+  /* Primary Colors */
+  --primary-color: #3f51b5;
+  --primary-light: #7986cb;
+  --primary-dark: #303f9f;
+
+  /* Secondary Colors */
+  --secondary-color: #ff4081;
+  --secondary-light: #ff80ab;
+  --secondary-dark: #f50057;
+
+  /* Status Colors */
+  --success-color: #4caf50;
+  --danger-color: #f44336;
+  --warning-color: #ff9800;
+  --info-color: #2196f3;
+
+  /* Neutral Colors */
+  --light-color: #f5f5f5;
+  --dark-color: #212121;
+  --bg-color: #ffffff;
+  --text-color: #333333;
+  --text-muted: #757575;
+
+  /* Border & Shadow */
+  --border-color: #e0e0e0;
+  --border-radius: 8px;
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --box-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+
+  /* Transitions */
+  --transition-speed: 0.3s;
+  --transition-timing: ease;
+
+  /* Typography */
+  --font-family:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-xxl: 2rem;
+
+  /* Layout */
+  --header-height: 64px;
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 64px;
+  --container-padding: 1.5rem;
+  --card-padding: 1.25rem;
+}
+
+/* Dark mode variables */
+.dark-theme {
+  --bg-color: #121212;
+  --text-color: #f5f5f5;
+  --text-muted: #bdbdbd;
+  --border-color: #424242;
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --box-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.7);
+}

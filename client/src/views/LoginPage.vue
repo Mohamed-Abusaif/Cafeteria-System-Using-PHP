@@ -89,7 +89,7 @@ async function handleLogin() {
     const data = await response.json()
     if (response.ok) {
       router.push('/').then(() => {
-        window.location.reload();
+        window.location.reload()
       })
     } else {
       error.value = data.message || 'Invalid email or password'
@@ -152,7 +152,7 @@ async function sendResetLink() {
         body: JSON.stringify({
           email: forgotEmail.value,
         }),
-      }
+      },
     )
 
     const data = await response.json()
@@ -171,44 +171,41 @@ async function sendResetLink() {
 </script>
 
 <template>
-  <div class="login-page">
+  <div class="login-page page-content">
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
-          <div class="login-card card border-0 shadow-lg mt-5">
-            <div class="card-body p-5">
+          <div class="card login-card">
+            <div class="card-body p-4 p-lg-5">
               <div class="text-center mb-4">
-                <h2 class="fw-bold">Welcome Back</h2>
+                <div class="logo-container mx-auto mb-3">
+                  <i class="bi bi-cup-hot-fill"></i>
+                </div>
+                <h2 class="card-title">Welcome Back</h2>
                 <p class="text-muted">Sign in to your account</p>
               </div>
 
-              <form @submit.prevent="handleLogin">
-                <div v-if="error" class="alert alert-danger" role="alert">
-                  {{ error }}
-                </div>
+              <div v-if="error" class="alert alert-danger" role="alert">
+                {{ error }}
+              </div>
 
-                <!-- Email Field -->
+              <form @submit.prevent="handleLogin">
                 <div class="mb-3">
-                  <label for="email" class="form-label">Email address</label>
-                  <div class="input-group" :class="{ 'is-invalid': emailError }">
-                    <span class="input-group-text">
-                      <i class="bi bi-envelope"></i>
-                    </span>
+                  <label for="email" class="form-label">Email Address</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                     <input
                       type="email"
                       class="form-control"
-                      :class="{ 'is-invalid': emailError }"
                       id="email"
                       v-model="email"
-                      placeholder="name@example.com"
                       required
-                      autocomplete="email"
+                      placeholder="Enter your email"
+                      :disabled="loading"
                     />
                   </div>
-                  <div class="invalid-feedback" v-if="emailError">{{ emailError }}</div>
                 </div>
 
-                <!-- Password Field -->
                 <div class="mb-4">
                   <label for="password" class="form-label">Password</label>
                   <div class="input-group" :class="{ 'is-invalid': passwordError }">
@@ -236,12 +233,15 @@ async function sendResetLink() {
                   <div class="invalid-feedback" v-if="passwordError">{{ passwordError }}</div>
                 </div>
 
-                <!-- Forgot Password -->
                 <div class="d-flex justify-content-end align-items-center mb-4">
-                  <a href="#" class="text-primary text-decoration-none" @click.prevent="openForgotPasswordModal">Forgot password?</a>
+                  <a
+                    href="#"
+                    class="text-primary text-decoration-none"
+                    @click.prevent="openForgotPasswordModal"
+                    >Forgot password?</a
+                  >
                 </div>
 
-                <!-- Login Button -->
                 <button type="submit" class="btn btn-primary w-100 py-2" :disabled="loading">
                   <span
                     v-if="loading"
@@ -272,7 +272,12 @@ async function sendResetLink() {
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="forgotPasswordModalLabel">Reset Password</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
         <div class="modal-body">
           <div v-if="forgotPasswordSuccess" class="alert alert-success">
@@ -301,13 +306,7 @@ async function sendResetLink() {
           </div>
         </div>
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-          >
-            Close
-          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           <button
             v-if="!forgotPasswordSuccess"
             type="button"

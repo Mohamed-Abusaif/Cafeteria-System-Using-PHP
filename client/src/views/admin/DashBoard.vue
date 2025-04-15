@@ -33,7 +33,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container py-4">
+  <div class="dashboard-container page-content">
     <div v-if="isLoading" class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
@@ -41,13 +41,13 @@ onMounted(async () => {
       <p class="mt-2">Loading data...</p>
     </div>
 
-    <div v-else-if="error" class="alert alert-danger text-center">
+    <div v-else-if="error" class="alert alert-danger text-center m-2">
       <i class="bi bi-exclamation-triangle-fill me-2"></i>
       {{ error }}
       <button @click="$emit('retry')" class="btn btn-sm btn-outline-danger ms-3">Retry</button>
     </div>
 
-    <div v-else class="row g-4">
+    <div v-else class="row g-4 m-0">
       <div class="col-md-4 col-sm-6" v-for="(count, key) in data" :key="key">
         <div class="card h-100 border-light shadow-sm hover-effect">
           <div class="card-header bg-transparent border-light">
@@ -78,6 +78,13 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.dashboard-container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
 .hover-effect {
   transition: all 0.3s ease;
   border-radius: 10px;
