@@ -27,7 +27,7 @@ onMounted(async () => {
       `${import.meta.env.VITE_SERVER_URL}/controllers/auth/login.controller.php`,
       {
         method: 'GET',
-        credentials: 'include', // Include cookies
+        credentials: 'include',
       },
     )
 
@@ -145,6 +145,7 @@ async function sendResetLink() {
       `${import.meta.env.VITE_SERVER_URL}/controllers/auth/forgetPassword.controller.php`,
       {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

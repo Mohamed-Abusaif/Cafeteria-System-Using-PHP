@@ -26,6 +26,10 @@ async function fetchCategories() {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/controllers/category.controller.php`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      },
     )
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     const data = await response.json()
@@ -111,6 +115,7 @@ async function saveOrUpdateCategory() {
   try {
     const response = await fetch(url, {
       method: method,
+      credentials: 'include',
       body: JSON.stringify(categoryData),
     })
     const result = await response.json()
@@ -136,6 +141,7 @@ async function confirmDelete() {
       `${import.meta.env.VITE_SERVER_URL}/controllers/category.controller.php/${categoryToDelete.value.id}`,
       {
         method: 'DELETE',
+        credentials: 'include',
       },
     )
 

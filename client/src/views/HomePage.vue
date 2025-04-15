@@ -44,7 +44,10 @@ async function fetchProductsData() {
     if (selectedCategory.value) params.append('category_id', selectedCategory.value)
 
     const url = `${import.meta.env.VITE_SERVER_URL}/controllers/product.controller.php?${params.toString()}`
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      method: 'GET',
+      credentials: 'include',
+    })
 
     if (response.ok) {
       const productsData = await response.json()
@@ -67,6 +70,10 @@ async function fetchCategoriesData() {
   try {
     const categoriesResponse = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/controllers/category.controller.php`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      },
     )
     if (categoriesResponse.ok) {
       const categoriesData = await categoriesResponse.json()

@@ -45,6 +45,7 @@ const resetPassword = async () => {
   try {
     const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/controllers/auth/forgetPassword.controller.php`, {
       method: 'PATCH',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },

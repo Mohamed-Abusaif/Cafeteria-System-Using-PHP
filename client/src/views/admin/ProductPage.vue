@@ -78,7 +78,10 @@ async function fetchProducts() {
     if (availabilityFilter.value) params.append('availability', availabilityFilter.value)
 
     const url = `${import.meta.env.VITE_SERVER_URL}/controllers/product.controller.php?${params.toString()}`
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      method: 'GET',
+      credentials: 'include',
+    })
 
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
@@ -107,6 +110,10 @@ async function fetchCategories() {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/controllers/category.controller.php`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      },
     )
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     const data = await response.json()
@@ -279,6 +286,7 @@ async function updateProductImage() {
       `${import.meta.env.VITE_SERVER_URL}/controllers/changeImage.controller.php/${productToUpdateImage.value.id}`,
       {
         method: 'POST',
+        credentials: 'include',
         body: formData,
       },
     )
@@ -366,6 +374,7 @@ async function saveOrUpdateProduct() {
   try {
     const response = await fetch(url, {
       method: method,
+      credentials: 'include',
       body: isEditing.value && !formData.value.image ? JSON.stringify(formData.value) : form,
       headers:
         isEditing.value && !formData.value.image
@@ -399,6 +408,7 @@ async function confirmDelete() {
       `${import.meta.env.VITE_SERVER_URL}/controllers/product.controller.php/${productToDelete.value.id}`,
       {
         method: 'DELETE',
+        credentials: 'include',
       },
     )
 

@@ -335,7 +335,11 @@ const fetchOrders = async () => {
     }
 
     const response = await fetch(
-      `${import.meta.env.VITE_SERVER_URL}/controllers/order.controller.php?${params.toString()}`
+      `${import.meta.env.VITE_SERVER_URL}/controllers/order.controller.php?${params.toString()}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      },
     )
 
     if (!response.ok) {
@@ -401,7 +405,8 @@ async function cancelOrder() {
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/controllers/order.controller.php/${orderToCancel.value.id}`,
       {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include',
       }
     )
 

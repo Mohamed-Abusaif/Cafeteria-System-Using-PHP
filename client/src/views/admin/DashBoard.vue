@@ -11,6 +11,10 @@ onMounted(async () => {
   try {
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/controllers/dashboard.controller.php`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      },
     )
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     const resData = await response.json()

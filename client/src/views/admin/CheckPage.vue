@@ -38,7 +38,10 @@ async function fetchChecks() {
     }
 
     const url = `${import.meta.env.VITE_SERVER_URL}/controllers/order.controller.php?${params.toString()}`
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      method: 'GET',
+      credentials: 'include',
+    })
 
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 

@@ -172,7 +172,7 @@
           <div v-if="isAdmin" class="admin-controls mb-4">
             <div class="form-group">
               <label for="user-id" class="form-label">
-                Place order for User ID 
+                Place order for User ID
                 <span class="required">*</span>
               </label>
               <input
@@ -293,13 +293,13 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(
-  faChevronLeft, 
-  faExclamationCircle, 
-  faShoppingCart, 
-  faMinus, 
-  faPlus, 
-  faTrashAlt, 
-  faLock, 
+  faChevronLeft,
+  faExclamationCircle,
+  faShoppingCart,
+  faMinus,
+  faPlus,
+  faTrashAlt,
+  faLock,
   faCheckCircle,
   faUserShield
 )
@@ -348,7 +348,7 @@ const getUserId = async () => {
     )
     const userData = await userResponse.json()
     const userId = userData?.data?.id
-    
+
     // Check if user is admin
     isAdmin.value = userData?.data?.role === 'Admin'
     currentUserId.value = userId
@@ -375,6 +375,10 @@ const fetchCart = async () => {
     // Fetch cart data
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/controllers/cart.controller.php/${userId}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+      }
     )
 
     if (!response.ok) {
@@ -407,6 +411,7 @@ const fetchRooms = async () => {
       `${import.meta.env.VITE_SERVER_URL}/controllers/room.controller.php`,
       {
         method: 'GET',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -451,6 +456,7 @@ const updateQuantity = async (item, newQuantity) => {
       `${import.meta.env.VITE_SERVER_URL}/controllers/cart.controller.php/${userId}`,
       {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -497,6 +503,7 @@ const removeItem = async (item) => {
       `${import.meta.env.VITE_SERVER_URL}/controllers/cart.controller.php/${userId}`,
       {
         method: 'DELETE',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -536,7 +543,7 @@ const proceedToCheckout = async () => {
   checkoutForm.value = {
     roomId: '',
     notes: '',
-    targetUserId: isAdmin.value ? '' : currentUserId.value 
+    targetUserId: isAdmin.value ? '' : currentUserId.value
   }
 
   error.value = ''
@@ -561,14 +568,15 @@ const submitOrder = async () => {
 
   checkoutLoading.value = true
   try {
-    const userId = isAdmin.value && checkoutForm.value.targetUserId 
-      ? checkoutForm.value.targetUserId 
+    const userId = isAdmin.value && checkoutForm.value.targetUserId
+      ? checkoutForm.value.targetUserId
       : await getUserId()
 
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/controllers/order.controller.php`,
       {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -614,7 +622,7 @@ const submitOrder = async () => {
 
 const closeCheckoutModal = () => {
   showCheckoutModal.value = false
-  error.value = '' 
+  error.value = ''
 }
 
 onMounted(async () => {
@@ -625,7 +633,7 @@ onMounted(async () => {
     // If successful (no error thrown), fetch the cart
     fetchCart()
     fetchRooms()
-    
+
   } catch (err) {
     // User is not authenticated, redirect to home page
     router.push('/')

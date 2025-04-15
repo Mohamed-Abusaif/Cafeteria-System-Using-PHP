@@ -33,7 +33,7 @@ class UserController {
 
   #[NoReturn] private function getUsers(): void {
     $loggedInUser = $this->getLoggedInUser();
-    if($loggedInUser->role !== 'Admin') {
+    if($loggedInUser['role'] !== 'Admin') {
       $this->apiResponse(null, 'Unauthorized', 401);
     }
 	  $page = $_GET['page'] ?? 1;
