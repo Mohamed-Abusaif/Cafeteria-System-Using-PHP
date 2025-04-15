@@ -18,6 +18,7 @@ class Logout {
   }
 
   #[NoReturn] private function logout(): void {
+
     if (isset($_COOKIE['token'])) {
       setcookie("token", "", time() - 3600, "/", "", false, true);
     }

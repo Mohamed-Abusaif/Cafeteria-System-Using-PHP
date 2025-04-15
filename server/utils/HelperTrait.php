@@ -47,10 +47,9 @@ trait HelperTrait {
 		$cloudinary = new Cloudinary($config);
 		$cloudinary->uploadApi()->destroy($publicId, options: ['invalidate' => true]);
 	}
-  public function me(): mixed {
+  public function getLoggedInUser(): mixed {
     $env = parse_ini_file(__DIR__ . '/../.env');
     $secretKey = $env['JWT_SECRET'];
-
     if (!isset($_COOKIE['token'])) {
       $this->apiResponse((object)[], 'Token not found in cookies', 401);
     }

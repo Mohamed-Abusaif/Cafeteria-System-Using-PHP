@@ -28,7 +28,12 @@ class ChangeImage {
   }
 
   #[NoReturn] private function changeImage($id): void {
-	  $user = User::find($id);
+    // TODO: role user , same user id
+    $loggedInUser = $this->getLoggedInUser();
+    if($loggedInUser['id'] !== $id ) {
+      $this->apiResponse(null, 'Unauthorized', 401);
+    }
+    $user = User::find($id);
     if (!$user) {
       $this->apiResponse((object)[], 'user not found', 404);
     }
