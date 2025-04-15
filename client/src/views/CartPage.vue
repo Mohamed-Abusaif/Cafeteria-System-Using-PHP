@@ -168,6 +168,25 @@
             {{ error }}
           </div>
 
+          <!-- Admin User Selection (Only visible to admins) -->
+          <div v-if="isAdmin" class="admin-controls mb-4">
+            <div class="form-group">
+              <label for="user-id" class="form-label">
+                Place order for User ID 
+                <span class="required">*</span>
+              </label>
+              <input
+                id="user-id"
+                v-model="checkoutForm.targetUserId"
+                class="form-control"
+                type="number"
+                placeholder="Enter user ID"
+                :disabled="checkoutLoading"
+                required
+              />
+            </div>
+          </div>
+
           <!-- Order Summary -->
           <div class="checkout-summary mb-4">
             <h3>Order Summary</h3>
@@ -237,7 +256,7 @@
           <button
             class="btn btn-primary confirm-btn"
             @click="submitOrder"
-            :disabled="checkoutLoading || !checkoutForm.roomId || roomsLoading"
+            :disabled="checkoutLoading || !checkoutForm.roomId || roomsLoading || (isAdmin && !checkoutForm.targetUserId)"
           >
             <span v-if="checkoutLoading">
               <div class="spinner-border spinner-border-sm" role="status">
@@ -269,26 +288,40 @@ import {
   faTrashAlt,
   faLock,
   faCheckCircle,
+  faUserShield,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faChevronLeft, faExclamationCircle, faShoppingCart, faMinus, faPlus, faTrashAlt, faLock, faCheckCircle)
+library.add(
+  faChevronLeft, 
+  faExclamationCircle, 
+  faShoppingCart, 
+  faMinus, 
+  faPlus, 
+  faTrashAlt, 
+  faLock, 
+  faCheckCircle,
+  faUserShield
+)
 
 const router = useRouter()
 const initialLoading = ref(true)
 const operationLoading = ref(false)
 const error = ref('')
-const successMessage = ref('') // Added for success messages
+const successMessage = ref('')
 const cart = ref([])
+const isAdmin = ref(false)
+const currentUserId = ref(null)
 
 const showCheckoutModal = ref(false)
 const checkoutForm = ref({
   roomId: '',
-  notes: ''
+  notes: '',
+  targetUserId: ''
 })
 const checkoutLoading = ref(false)
 const rooms = ref([])
-const roomsLoading = ref(false) // Added to track rooms loading state
+const roomsLoading = ref(false)
 
 // Computed properties
 const cartIsEmpty = computed(() => !cart.value || cart.value.length === 0)
@@ -301,7 +334,7 @@ const subtotal = computed(() => {
   }, 0)
 })
 
-// Helper function to get the current user ID
+// Helper function to get the current user ID and check if they're an admin
 const getUserId = async () => {
   try {
     const userResponse = await fetch(
@@ -315,6 +348,10 @@ const getUserId = async () => {
     )
     const userData = await userResponse.json()
     const userId = userData?.data?.id
+    
+    // Check if user is admin
+    isAdmin.value = userData?.data?.role === 'Admin'
+    currentUserId.value = userId
 
     if (!userId) {
       throw new Error('User not logged in')
@@ -495,9 +532,11 @@ const clearSuccess = () => {
 }
 
 const proceedToCheckout = async () => {
+  // Reset form
   checkoutForm.value = {
     roomId: '',
-    notes: ''
+    notes: '',
+    targetUserId: isAdmin.value ? '' : currentUserId.value 
   }
 
   error.value = ''
@@ -515,9 +554,16 @@ const submitOrder = async () => {
     return
   }
 
+  if (isAdmin.value && !checkoutForm.value.targetUserId) {
+    error.value = 'Please enter a user ID to place this order for'
+    return
+  }
+
   checkoutLoading.value = true
   try {
-    const userId = await getUserId()
+    const userId = isAdmin.value && checkoutForm.value.targetUserId 
+      ? checkoutForm.value.targetUserId 
+      : await getUserId()
 
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_URL}/controllers/order.controller.php`,
@@ -527,7 +573,8 @@ const submitOrder = async () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_id: userId,
+          Admin_id: isAdmin.value ? parseInt(currentUserId.value, 10) : null,
+          user_id: parseInt(userId, 10),
           room_id: parseInt(checkoutForm.value.roomId, 10),
           notes: checkoutForm.value.notes || null,
         }),
@@ -544,11 +591,20 @@ const submitOrder = async () => {
 
     showCheckoutModal.value = false
 
-    successMessage.value = 'Your order has been placed successfully!'
-    setTimeout(() => {
-      successMessage.value = ''
-      router.push('/orders')
-    }, 2000)
+    if (isAdmin.value && checkoutForm.value.targetUserId != currentUserId.value) {
+      successMessage.value = `Order successfully placed for user ID: ${checkoutForm.value.targetUserId}`
+      setTimeout(() => {
+        successMessage.value = ''
+        router.push('/dashboard/orders')
+      }, 2000)
+    } else {
+      successMessage.value = 'Your order has been placed successfully!'
+      setTimeout(() => {
+        successMessage.value = ''
+        router.push('/orders')
+      }, 2000)
+    }
+
   } catch (err) {
     error.value = err.message || 'Failed to create order'
   } finally {

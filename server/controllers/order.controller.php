@@ -109,6 +109,7 @@ class OrderController {
   #[NoReturn] private function createOrder(): void {
     $jsonData = json_decode(file_get_contents("php://input"), true);
     $validator = Validator::make($jsonData, [
+      'Admin_id' => 'nullable|numeric|exists:users',
       'user_id' => 'required|numeric|exists:users',
       'room_id' => 'required|numeric|exists:rooms',
       'notes' => 'nullable|string',
@@ -117,9 +118,13 @@ class OrderController {
     if ($validator->fails()) {
       $this->apiResponse((object)[], $validator->firstError(), 400);
     }
-
-    $cart = Cart::where('user_id', '=', $jsonData['user_id'])->first();
-
+    
+    if(is_null($jsonData['Admin_id'])){
+      $cart = Cart::where('user_id', '=', $jsonData['user_id'])->first();
+    }else{
+      $cart = Cart::where('user_id', '=', $jsonData['Admin_id'])->first();
+    }
+    
     if (!$cart) {
       $this->apiResponse((object)[], 'Cart not found', 400);
     }
