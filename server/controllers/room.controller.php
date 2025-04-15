@@ -30,6 +30,11 @@ class RoomController {
 	}
 
 	#[NoReturn] private function getRooms(): void {
+		$loggedInUser = $this->getLoggedInUser();
+		if (!$loggedInUser) {
+			$this->apiResponse((object)[], 'Unauthorized', 401);
+		}
+
 		$rooms = Room::all();
 		$this->apiResponse($rooms, 'ok', 200);
 	}
@@ -44,6 +49,11 @@ class RoomController {
 	}
 
 	#[NoReturn] private function createRoom(): void {
+		$loggedInUser = $this->getLoggedInUser();
+		if ($loggedInUser['role'] !== 'Admin') {
+			$this->apiResponse((object)[], 'Unauthorized', 401);
+		}
+
 		$jsonData = json_decode(file_get_contents("php://input"), true);
 		$validator = Validator::make($jsonData, [
 			'name' => 'required|string|unique:rooms',
@@ -61,6 +71,11 @@ class RoomController {
 	}
 
 	#[NoReturn] private function updateRoom($id): void {
+		$loggedInUser = $this->getLoggedInUser();
+		if ($loggedInUser['role'] !== 'Admin') {
+			$this->apiResponse((object)[], 'Unauthorized', 401);
+		}
+
 		$jsonData = json_decode(file_get_contents("php://input"), true);
 		$validator = Validator::make($jsonData, [
 			'name' => 'nullable|string|unique:rooms,name,' . $id,
@@ -75,6 +90,11 @@ class RoomController {
 	}
 
 	#[NoReturn] private function deleteRoom($id): void {
+		$loggedInUser = $this->getLoggedInUser();
+		if ($loggedInUser['role'] !== 'Admin') {
+			$this->apiResponse((object)[], 'Unauthorized', 401);
+		}
+
 		$relatedOrders = Order::where('room_id', '=', $id)->count();
 		$relatedUsers = User::where('room_id', '=', $id)->count();
 		if ($relatedOrders > 0 || $relatedUsers > 0) {

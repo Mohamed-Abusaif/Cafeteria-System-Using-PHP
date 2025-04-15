@@ -22,15 +22,4 @@ class JwtHelper {
 
     return JWT::encode($payload, self::$secretKey, self::$algorithm);
   }
-  public static function validateToken(string $token): array|false {
-    try {
-      if (empty(self::$secretKey)) {
-        self::loadEnv();
-      }
-
-      return (array)JWT::decode($token, new Key(self::$secretKey, self::$algorithm));
-    } catch (Exception $e) {
-      return false;
-    }
-  }
 }

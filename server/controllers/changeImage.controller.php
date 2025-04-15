@@ -28,6 +28,11 @@ class ChangeImageProduct {
   }
 
   #[NoReturn] private function changeImage($id): void {
+	  $loggedInUser = $this->getLoggedInUser();
+	  if ($loggedInUser['role'] !== 'Admin') {
+		  $this->apiResponse((object)[], 'Unauthorized', 401);
+	  }
+
 	  $product = Product::find($id);
     if (!$product) {
       $this->apiResponse((object)[], 'product not found', 404);

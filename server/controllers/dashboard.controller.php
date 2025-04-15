@@ -22,12 +22,17 @@ class DashboardController{
   }
 
   #[NoReturn] public function getDashboard(): void {
+	  $loggedInUser = $this->getLoggedInUser();
+	  if ($loggedInUser['role'] !== 'Admin') {
+		  $this->apiResponse((object)[], 'Unauthorized', 401);
+	  }
+
     $totalUsers = User::where('deleted_at', 'is', null)->count();
     $totalRooms = Room::count();
     $totalProducts = Product::where('deleted_at', 'is', null)->count();
     $totalCategories = Category::count();
-    $totalOrders = Order::where('deleted_at', 'is', null)->where('status', '!=', 'done')->count();
-    $totalChecks = Order::where('deleted_at', 'is', null)->where('status', '=', 'done')->count();
+    $totalOrders = Order::where('status', '!=', 'done')->count();
+    $totalChecks = Order::where('status', '=', 'done')->count();
     $this->apiResponse([
       'users' => $totalUsers,
       'categories' => $totalCategories,
