@@ -89,7 +89,7 @@ class UserController {
     $hashedPassword = password_hash($jsonData['password'], PASSWORD_BCRYPT);
     $user = User::create([
       'name' => $jsonData['name'],
-      'email' => $jsonData['email'],
+      'email' => strtolower($jsonData['email']),
       'password' => $hashedPassword,
       'room_id' => $jsonData['room_id'] ?? null,
       'image' => $imageUrl ?? null,

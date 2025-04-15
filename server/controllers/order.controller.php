@@ -10,6 +10,8 @@ require_once '../models/Cart.php';
 require_once '../models/CartProduct.php';
 require_once '../models/Product.php';
 require_once '../models/OrderProduct.php';
+require_once '../models/Room.php';
+require_once '../models/Database.php';
 
 class OrderController {
   use HelperTrait;
@@ -21,7 +23,7 @@ class OrderController {
     switch ($method) {
       case 'GET':
         if ($id) $this->getOneOrder($id);
-        else $this->getOrders();
+        else $this->getOrdersWithJoin();
       case 'POST':
         $this->createOrder();
       case 'PATCH':
@@ -33,43 +35,126 @@ class OrderController {
     }
   }
 
-  #[NoReturn] private function getOrders(): void {
+  #[NoReturn] private function getOrdersWithJoin(): void {
+    $loggedInUser = $this->getLoggedInUser();
+	  if (!$loggedInUser) {
+		  $this->apiResponse((object)[], 'Unauthorized', 401);
+	  }
+    
     $page = $_GET['page'] ?? 1;
     $limit = $_GET['limit'] ?? 10;
+    
+    Order::init();
+    $con = Database::getInstance()->getConnection();
+    $query = "SELECT o.*, u.name as user_name, r.name as room_name 
+              FROM orders o
+              JOIN users u ON o.user_id = u.id
+              JOIN rooms r ON o.room_id = r.id
+              WHERE 1=1";
+    
+    $params = [];
     if (isset($_GET['start_date']) && isset($_GET['end_date'])) {
       $startDate = date('Y-m-d H:i:s', strtotime($_GET['start_date']));
       $endDate = date('Y-m-d H:i:s', strtotime($_GET['end_date']));
-
+      
       if ($startDate && $endDate) {
-	      Order::whereBetween('created_at', [$startDate, $endDate]);
+        $query .= " AND o.created_at BETWEEN :start_date AND :end_date";
+        $params['start_date'] = $startDate;
+        $params['end_date'] = $endDate;
       }
     }
-
+    
     if (isset($_GET['user_id'])) {
-      Order::where('user_id', '=', $_GET['user_id']);
+      $query .= " AND o.user_id = :user_id";
+      $params['user_id'] = $_GET['user_id'];
     }
-
     if (isset($_GET['status'])) {
       $validStatuses = ['processing', 'delivered', 'done', 'canceled'];
       if (in_array($_GET['status'], $validStatuses)) {
-        Order::where('status', '=', $_GET['status']);
+        $query .= " AND o.status = :status";
+        $params['status'] = $_GET['status'];
       }
     }
-
-    $orders = Order::sort('created_at', 'DESC')->paginate($page, $limit);
-    foreach ($orders['data'] as &$order) {
-      $user = User::find($order['user_id']);
-      $room = Room::find($order['room_id']);
-      $order['user'] = [
-        "name" => $user['name']
-      ];
-      $order['room'] = [
-        "name" => $room['name']
-      ];
-      $order['products'] = $this->getOrderProducts($order['id']);
+    
+    $countQuery = str_replace("SELECT o.*, u.name as user_name, r.name as room_name", "SELECT COUNT(*) as total", $query);
+    $countStmt = $con->prepare($countQuery);
+    foreach ($params as $key => $val) {
+      $countStmt->bindValue(":$key", $val);
     }
-
-    $this->apiResponse($orders, 'ok', 200);
+    $countStmt->execute();
+    $total = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+    $totalPages = ceil($total / $limit);
+    
+    $query .= " ORDER BY o.created_at DESC";
+    $query .= " LIMIT :limit OFFSET :offset";
+    $offset = ($page - 1) * $limit;
+    $stmt = $con->prepare($query);
+    foreach ($params as $key => $val) {
+      $stmt->bindValue(":$key", $val);
+    }
+    $stmt->bindValue(":limit", (int)$limit, PDO::PARAM_INT);
+    $stmt->bindValue(":offset", (int)$offset, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    $ordersData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $orderIds = array_column($ordersData, 'id');
+    $products = [];
+    
+    if (!empty($orderIds)) {
+      $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+      $productQuery = "SELECT op.*, p.name as product_name, op.order_id 
+                      FROM order_products op
+                      JOIN products p ON op.product_id = p.id
+                      WHERE op.order_id IN ($placeholders)";
+      
+      $productStmt = $con->prepare($productQuery);
+      $productStmt->execute($orderIds);
+      $productResults = $productStmt->fetchAll(PDO::FETCH_ASSOC);
+      foreach ($productResults as $product) {
+        $orderId = $product['order_id'];
+        if (!isset($products[$orderId])) {
+          $products[$orderId] = [];
+        }
+        $products[$orderId][] = [
+          'id' => $product['id'],
+          'product_id' => $product['product_id'],
+          'product_name' => $product['product_name'],
+          'quantity' => $product['quantity'],
+          'price' => $product['price']
+        ];
+      }
+    }
+    
+    $orders = [];
+    foreach ($ordersData as $order) {
+      $orderId = $order['id'];
+      $orders[] = [
+        'id' => $orderId,
+        'user_id' => $order['user_id'],
+        'room_id' => $order['room_id'],
+        'status' => $order['status'],
+        'total_price' => $order['total_price'],
+        'notes' => $order['notes'],
+        'created_at' => $order['created_at'],
+        'updated_at' => $order['updated_at'],
+        'user' => [
+          'name' => $order['user_name']
+        ],
+        'room' => [
+          'name' => $order['room_name']
+        ],
+        'products' => $products[$orderId] ?? []
+      ];
+    }
+    
+    $result = [
+      'total' => (int)$total,
+      'total_pages' => (int)$totalPages,
+      'current_page' => (int)$page,
+      'per_page' => (int)$limit,
+      'data' => $orders,
+    ];
+    $this->apiResponse($result, 'ok', 200);
   }
 
   #[NoReturn] private function getOneOrder($id): void {
@@ -80,29 +165,6 @@ class OrderController {
 
     $order['products'] = $this->getOrderProducts($id);
     $this->apiResponse($order, 'ok', 200);
-  }
-
-  private function getOrderProducts($orderId): array {
-    $orderProducts = OrderProduct::where('order_id', '=', $orderId)->get();
-	  if (!is_array($orderProducts)) {
-		  return [];
-	  }
-
-    $products = [];
-    foreach ($orderProducts as $orderProduct) {
-      $product = Product::find($orderProduct['product_id']);
-      if ($product) {
-        $products[] = [
-          'id' => $orderProduct['id'],
-          'product_id' => $orderProduct['product_id'],
-          'product_name' => $product['name'],
-          'quantity' => $orderProduct['quantity'],
-          'price' => $orderProduct['price']
-        ];
-      }
-    }
-
-    return $products;
   }
 
   #[NoReturn] private function createOrder(): void {
@@ -253,6 +315,26 @@ class OrderController {
       'status' => 'canceled',
     ]);
     $this->apiResponse($updatedOrder, 'Order canceled successfully', 200);
+  }
+
+  /****************** ****************** Helper Functions ****************** ******************/
+  private function getOrderProducts($orderId): array {
+    $products = [];
+    $orderProducts = OrderProduct::where('order_id', '=', $orderId)->get();
+    foreach ($orderProducts as $orderProduct) {
+      $product = Product::find($orderProduct['product_id']);
+      if ($product) {
+        $products[] = [
+          'id' => $orderProduct['id'],
+          'product_id' => $orderProduct['product_id'],
+          'product_name' => $product['name'],
+          'quantity' => $orderProduct['quantity'],
+          'price' => $orderProduct['price']
+        ];
+      }
+    }
+
+    return $products;
   }
 }
 
