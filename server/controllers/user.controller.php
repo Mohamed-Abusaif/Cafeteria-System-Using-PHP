@@ -32,6 +32,10 @@ class UserController {
   }
 
   #[NoReturn] private function getUsers(): void {
+    $loggedInUser = $this->getLoggedInUser();
+    if($loggedInUser->role !== 'Admin') {
+      $this->apiResponse(null, 'Unauthorized', 401);
+    }
 	  $page = $_GET['page'] ?? 1;
 		$limit = $_GET['limit'] ?? 10;
 	  $users = User::where('deleted_at', 'is', null);
@@ -56,7 +60,12 @@ class UserController {
   }
 
   #[NoReturn] private function createUser(): void {
-	  $jsonData = json_decode(file_get_contents("php://input"), true);
+    $loggedInUser = $this->getLoggedInUser();
+//      print_r($loggedInUser);
+    if($loggedInUser['role'] !== 'Admin') {
+      $this->apiResponse(null, 'Unauthorized', 401);
+    }
+    $jsonData = json_decode(file_get_contents("php://input"), true);
     $validator = Validator::make($jsonData, [
       'name' => 'required|string',
       'email' => 'required|email|unique:users',
@@ -91,16 +100,26 @@ class UserController {
   }
 
   #[NoReturn] private function updateUser($id): void {
-    $user =User::find($id);
-    if (!$user) {
+    $loggedInUser = $this->getLoggedInUser();
+    if($loggedInUser['id'] !== $id && $loggedInUser['role'] !== 'Admin') {
+      $this->apiResponse(null, 'Unauthorized', 401);
+    }
+    $updatedUser =User::find($id);
+    if (!$updatedUser) {
       $this->apiResponse((object)[], 'user not found', 404);
     }
     $jsonData = json_decode(file_get_contents("php://input"), true);
     if(!$jsonData){
      $this->apiResponse((object)[], 'There is no data to update', 404);
     }
-		// TODO: check role from token if it is admin change ['room_id', 'role'] else it is user change ['name']
-	  $allowedFields = ['name', 'room_id', 'role'];
+    $allowedFields=[];
+    if($loggedInUser['id'] === $id){
+      $allowedFields[]='name';
+    }
+    if ($loggedInUser['role']==='Admin') {
+      $allowedFields[]='role';
+      $allowedFields[]='room_id' ;
+    }
     $jsonData = array_intersect_key($jsonData, array_flip($allowedFields));
     $validator = Validator::make($jsonData, [
       'name' => 'nullable|string',
@@ -119,6 +138,10 @@ class UserController {
   }
 
   #[NoReturn] private function deleteUser($id): void {
+    $loggedInUser = $this->getLoggedInUser();
+    if($loggedInUser['role'] !== 'Admin') {
+      $this->apiResponse(null, 'Unauthorized', 401);
+    }
     $user = User::find($id);
     if (!$user) {
       $this->apiResponse((object)[], 'user not found', 404);
@@ -128,7 +151,6 @@ class UserController {
     if ($publicId) {
       $this->deleteImageFromCloudinary($publicId);
     }
-
     $relatedCarts = Cart::where('user_id', '=', $id)->count();
 		$relatedOrders = Order::where('user_id', '=', $id)->count();
     if ($relatedCarts > 0 || $relatedOrders > 0) {
