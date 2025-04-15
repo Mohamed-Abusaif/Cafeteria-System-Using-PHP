@@ -5,18 +5,17 @@ meta {
 }
 
 get {
-  url: {{CAFETERIA_URL}}/controllers/order.controller.php
+  url: {{CAFETERIA_URL}}/controllers/order.controller.php?status=processing
   body: none
   auth: inherit
 }
 
 params:query {
-  ~limit: 2
-  ~page: 1
+  status: processing
+  ~limit: 30
+  ~page: 3
   ~user_id: 1
-  ~deleted_at: null
   ~start_date: 2025-03-20 15:07:23
   ~end_date: 2026-03-30 15:07:23
-  ~status: processing
   ~status: delivered
 }
