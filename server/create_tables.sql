@@ -1,10 +1,21 @@
+-- Drop existing tables if they exist (in reverse order of dependencies)
+DROP TABLE IF EXISTS order_products;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS cart_products;
+DROP TABLE IF EXISTS carts;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS rooms;
+
+-- Create rooms table
 CREATE TABLE rooms (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
     description VARCHAR(255)
 ); 
 
-
+-- Create users table with added fields
 CREATE TABLE users (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
@@ -12,58 +23,76 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     role VARCHAR(255) NOT NULL,
     image VARCHAR(255),
+    public_id VARCHAR(255),
+    gender VARCHAR(10),
     room_id INT UNSIGNED,
+    reset_token VARCHAR(255) DEFAULT NULL,
     FOREIGN KEY (room_id) REFERENCES rooms(id),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at DATETIME DEFAULT NULL 
 );  
 
- 
-create table categories (
-    id int unsigned primary key auto_increment,
-    name varchar(255) not null
+-- Create categories table
+CREATE TABLE categories (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE
 );
 
-
-create table products (
-    id int unsigned primary key auto_increment,
-    name varchar(255) not null,
-    price decimal (10) not null,
-    image varchar(255) not null,
-    category_id int unsigned,
-    foreign key (category_id) references categories(id),
-    availability varchar(255) not null default 'available',
-    created_at datetime not null default current_timestamp,
-    deleted_at datetime default null
+-- Create products table
+CREATE TABLE products (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    image VARCHAR(255) NOT NULL,
+    public_id VARCHAR(255),
+    category_id INT UNSIGNED,
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    availability VARCHAR(255) NOT NULL DEFAULT 'available',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL
 );
 
-create table carts (
-    id int unsigned primary key auto_increment,
-    user_id int unsigned,
-    foreign key (user_id) references users(id),
-    updated_at datetime not null default current_timestamp on update current_timestamp
+-- Create carts table
+CREATE TABLE carts (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    user_id INT UNSIGNED,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-create table cart_products (
-    id int unsigned primary key auto_increment,
-    cart_id int unsigned,
-    foreign key (cart_id) references carts(id),
-    product_id int unsigned,
-    foreign key (product_id) references products(id),
-    quantity int unsigned
+-- Create cart_products table
+CREATE TABLE cart_products (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    cart_id INT UNSIGNED,
+    product_id INT UNSIGNED,
+    quantity INT UNSIGNED,
+    FOREIGN KEY (cart_id) REFERENCES carts(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
-create table orders (
-    id int unsigned primary key auto_increment,
-    user_id int unsigned,
-    foreign key (user_id) references users(id),
-    status varchar(255) not null default 'processing',
-    total_price decimal(10,2) not null,
-    notes text,
-    room_id int unsigned,
-    foreign key (room_id) references rooms(id),
-    created_at datetime not null default current_timestamp,
-    updated_at datetime not null default current_timestamp on update current_timestamp,
-    deleted_at datetime default null
+-- Create orders table
+CREATE TABLE orders (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    user_id INT UNSIGNED,
+    room_id INT UNSIGNED,
+    status VARCHAR(255) NOT NULL DEFAULT 'processing',
+    total_price DECIMAL(10,2) NOT NULL,
+    notes TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (room_id) REFERENCES rooms(id)
+);
+
+-- Create order_products table (missing from original schema)
+CREATE TABLE order_products (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    order_id INT UNSIGNED,
+    product_id INT UNSIGNED,
+    quantity INT UNSIGNED NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
 );

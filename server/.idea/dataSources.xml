@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:mysql://php-project-db-do-user-17585185-0.i.db.ondigitalocean.com:25060/defaultdb</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="@hotel-database-faresedres1-317d.d.aivencloud.com" uuid="c2e07cf7-6bf0-42e7-90ea-b898610bdd11">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://hotel-database-faresedres1-317d.d.aivencloud.com:15182</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
